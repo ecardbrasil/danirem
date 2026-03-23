@@ -96,6 +96,18 @@
         padding: 0;
       }
 
+      body[data-theme="gremio"] {
+        --color-bg-strong: #002052;
+        --color-bg-mid: #0056b3;
+        --color-bg-deep: #000814;
+        --color-glow-pink: rgba(255, 255, 255, 0.14);
+        --color-glow-blue: rgba(64, 154, 255, 0.46);
+        --color-tag-default-bg: #e6f0ff;
+        --color-tag-default-text: #002052;
+        --color-tag-good-bg: #eaf4ff;
+        --color-tag-good-text: #003c7d;
+      }
+
       :where(button, input) {
         font-family: var(--font-family-base);
       }
@@ -240,6 +252,30 @@
         font-size: 0.95rem;
         line-height: 1.4;
         color: var(--color-text-secondary);
+      }
+
+      .weekly-widget {
+        margin: var(--space-4) auto 0;
+        max-width: 300px;
+        padding: var(--space-4) var(--space-5);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .weekly-widget-text {
+        margin: 0;
+        font-size: var(--font-size-sm);
+        line-height: 1.35;
+        color: rgba(243, 247, 255, 0.96);
+      }
+
+      .weekly-widget-tag {
+        margin: var(--space-2) 0 0;
+        font-size: var(--font-size-2xs);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(236, 242, 255, 0.76);
       }
 
       .clock {
@@ -509,6 +545,10 @@
         gap: var(--space-2);
         font-size: var(--font-size-xs);
         color: rgba(239, 244, 255, 0.88);
+      }
+
+      .setting-label.full {
+        grid-column: 1 / -1;
       }
 
       .setting-select {
@@ -912,6 +952,10 @@
         </div>
         <h1 class="message">Dorme bem, gatinha</h1>
         <p class="subtext c-text-muted">O DaniREM escolhe o melhor horário para a Dani acordar leve e descansada.</p>
+        <div class="weekly-widget c-card" id="weekly-widget">
+          <p class="weekly-widget-text" id="weekly-widget-text">Meta da semana: faltam 5 noites para a Dani bater 5+ ciclos.</p>
+          <p class="weekly-widget-tag" id="weekly-widget-tag">Meta semanal da Dani</p>
+        </div>
         <p class="clock">00:15</p>
       </section>
 
@@ -978,6 +1022,13 @@
                   <option value="95">95 min</option>
                 </select>
               </label>
+              <label class="setting-label full">
+                Tema visual
+                <select class="setting-select" id="theme-select">
+                  <option value="default">DaniREM padrão</option>
+                  <option value="gremio">Gremista</option>
+                </select>
+              </label>
             </div>
           </section>
         </section>
@@ -1027,6 +1078,7 @@
       const defaultSettings = {
         latencyMinutes: 14,
         cycleMinutes: 90,
+        theme: "default",
       };
       const labels = {
         4: { text: "Mínimo", className: "tag" },
@@ -1041,6 +1093,7 @@
       const wakeTimeActionButton = document.getElementById("wake-time-action");
       const latencySelect = document.getElementById("latency-select");
       const cycleSelect = document.getElementById("cycle-select");
+      const themeSelect = document.getElementById("theme-select");
       const tabSleep = document.getElementById("tab-sleep");
       const tabProgress = document.getElementById("tab-progress");
       const tabSettings = document.getElementById("tab-settings");
@@ -1054,6 +1107,8 @@
       const resultList = document.getElementById("result-list");
       const clockElement = document.querySelector(".clock");
       const assistiveText = document.getElementById("assistive-text");
+      const weeklyWidgetText = document.getElementById("weekly-widget-text");
+      const weeklyWidgetTag = document.getElementById("weekly-widget-tag");
       const saveProgressButton = document.getElementById("save-progress");
       const progressFill = document.getElementById("progress-fill");
       const progressCount = document.getElementById("progress-count");
@@ -1077,6 +1132,7 @@
       let onboardingIndex = 0;
       let latencyMinutes = defaultSettings.latencyMinutes;
       let cycleMinutes = defaultSettings.cycleMinutes;
+      let appTheme = defaultSettings.theme;
       let selectedResult = null;
       const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
@@ -1111,9 +1167,13 @@
           if (typeof parsed.cycleMinutes === "number" && allowedCycle.includes(parsed.cycleMinutes)) {
             cycleMinutes = parsed.cycleMinutes;
           }
+          if (parsed.theme === "default" || parsed.theme === "gremio") {
+            appTheme = parsed.theme;
+          }
         } catch {
           latencyMinutes = defaultSettings.latencyMinutes;
           cycleMinutes = defaultSettings.cycleMinutes;
+          appTheme = defaultSettings.theme;
         }
       }
 
@@ -1123,6 +1183,7 @@
           JSON.stringify({
             latencyMinutes,
             cycleMinutes,
+            theme: appTheme,
           }),
         );
       }
@@ -1130,6 +1191,12 @@
       function syncSettingsInputs() {
         latencySelect.value = String(latencyMinutes);
         cycleSelect.value = String(cycleMinutes);
+        themeSelect.value = appTheme;
+      }
+
+      function applyTheme(theme) {
+        appTheme = theme === "gremio" ? "gremio" : "default";
+        document.body.dataset.theme = appTheme;
       }
 
       function formatTime(date) {
@@ -1388,6 +1455,15 @@
             ? `A Dani registrou ${last7Records.length} noite(s) nos últimos 7 dias.`
             : "Nenhuma noite registrada nesta semana ainda.";
 
+        const missing = Math.max(0, 5 - achieved);
+        if (missing === 0) {
+          weeklyWidgetText.textContent = "Meta da semana batida: a Dani já garantiu 5 noites com 5+ ciclos 💙";
+          weeklyWidgetTag.textContent = "Semana concluída";
+        } else {
+          weeklyWidgetText.textContent = `Meta da semana: faltam ${missing} noite(s) para a Dani bater 5+ ciclos.`;
+          weeklyWidgetTag.textContent = `Progresso atual: ${achieved}/5`;
+        }
+
         progressList.innerHTML = "";
         if (last7Records.length === 0) {
           const emptyItem = document.createElement("li");
@@ -1480,6 +1556,10 @@
         cycleMinutes = Number(cycleSelect.value);
         saveSettings();
         recalculateCurrentMode();
+      });
+      themeSelect.addEventListener("change", () => {
+        applyTheme(themeSelect.value);
+        saveSettings();
       });
 
       function recalculateCurrentMode() {
@@ -1597,6 +1677,7 @@
       });
 
       loadSettings();
+      applyTheme(appTheme);
       syncSettingsInputs();
       updateWeeklyProgressUI();
       setMode("sleep-now");
