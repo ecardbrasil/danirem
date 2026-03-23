@@ -952,9 +952,10 @@
       }
 
       .app-nav {
-        position: absolute;
-        left: 14px;
-        right: 14px;
+        position: fixed;
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(calc(100vw - 28px), 362px);
         bottom: max(10px, env(safe-area-inset-bottom));
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -963,6 +964,7 @@
         border-radius: var(--radius-lg);
         border: 1px solid rgba(255, 255, 255, 0.2);
         background: rgba(18, 22, 74, 0.9);
+        z-index: 12;
       }
 
       .nav-btn {
