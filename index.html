@@ -627,6 +627,49 @@
         font-size: var(--font-size-sm);
       }
 
+      .theme-cards {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+
+      .theme-card {
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.1);
+        padding: var(--space-3);
+        text-align: left;
+        color: var(--color-text-primary);
+        min-height: 74px;
+        display: grid;
+        align-content: space-between;
+        gap: var(--space-2);
+      }
+
+      .theme-card.active {
+        border-color: rgba(255, 255, 255, 0.58);
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .theme-card-title {
+        margin: 0;
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .theme-card-strip {
+        height: 8px;
+        border-radius: var(--radius-pill);
+      }
+
+      .theme-card-strip.default {
+        background: linear-gradient(90deg, #3f2ad6, #120f66, #091570);
+      }
+
+      .theme-card-strip.gremio {
+        background: linear-gradient(90deg, #0a7dff, #ffffff, #06101f);
+      }
+
       .assistive {
         margin: 8px 0 0;
         font-size: var(--font-size-xs);
@@ -1336,10 +1379,16 @@
               </label>
               <label class="setting-label full">
                 Tema visual
-                <select class="setting-select" id="theme-select">
-                  <option value="default">DaniREM padrão</option>
-                  <option value="gremio">Gremista</option>
-                </select>
+                <div class="theme-cards">
+                  <button class="theme-card c-btn" id="theme-default" type="button" data-theme="default">
+                    <p class="theme-card-title">Padrão</p>
+                    <span class="theme-card-strip default"></span>
+                  </button>
+                  <button class="theme-card c-btn" id="theme-gremio" type="button" data-theme="gremio">
+                    <p class="theme-card-title">Gremista</p>
+                    <span class="theme-card-strip gremio"></span>
+                  </button>
+                </div>
               </label>
             </div>
           </section>
@@ -1429,7 +1478,8 @@
       const wakeTimeActionButton = document.getElementById("wake-time-action");
       const latencySelect = document.getElementById("latency-select");
       const cycleSelect = document.getElementById("cycle-select");
-      const themeSelect = document.getElementById("theme-select");
+      const themeDefaultButton = document.getElementById("theme-default");
+      const themeGremioButton = document.getElementById("theme-gremio");
       const tabSleep = document.getElementById("tab-sleep");
       const tabProgress = document.getElementById("tab-progress");
       const tabSettings = document.getElementById("tab-settings");
@@ -1540,12 +1590,18 @@
       function syncSettingsInputs() {
         latencySelect.value = String(latencyMinutes);
         cycleSelect.value = String(cycleMinutes);
-        themeSelect.value = appTheme;
+        updateThemeCards();
+      }
+
+      function updateThemeCards() {
+        themeDefaultButton.classList.toggle("active", appTheme === "default");
+        themeGremioButton.classList.toggle("active", appTheme === "gremio");
       }
 
       function applyTheme(theme) {
         appTheme = theme === "gremio" ? "gremio" : "default";
         document.body.dataset.theme = appTheme;
+        updateThemeCards();
       }
 
       function formatTime(date) {
@@ -2123,8 +2179,12 @@
         saveSettings();
         recalculateCurrentMode();
       });
-      themeSelect.addEventListener("change", () => {
-        applyTheme(themeSelect.value);
+      bindPress(themeDefaultButton, () => {
+        applyTheme("default");
+        saveSettings();
+      });
+      bindPress(themeGremioButton, () => {
+        applyTheme("gremio");
         saveSettings();
       });
 
