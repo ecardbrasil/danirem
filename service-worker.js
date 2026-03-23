@@ -1,5 +1,13 @@
 const CACHE_NAME = "danirem-cache-v1";
-const APP_SHELL = ["./", "./index.html", "./manifest.json", "./apple-touch-icon.png", "./favicon-32x32.png", "./favicon-16x16.png"];
+const APP_SHELL = [
+  "./",
+  "./index.html",
+  "./offline.html",
+  "./manifest.json",
+  "./apple-touch-icon.png",
+  "./favicon-32x32.png",
+  "./favicon-16x16.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -32,7 +40,7 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
           return response;
         })
-        .catch(() => caches.match("./index.html")),
+        .catch(() => caches.match("./offline.html")),
     );
     return;
   }
