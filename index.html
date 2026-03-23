@@ -799,6 +799,18 @@
         background: rgba(255, 255, 255, 0.16);
       }
 
+      .calendar-day.recorded-medium {
+        background: linear-gradient(180deg, #f6b73c, #de8c14);
+        border-color: rgba(255, 232, 188, 0.7);
+        color: #fff;
+      }
+
+      .calendar-day.recorded-bad {
+        background: linear-gradient(180deg, #ff6b6b, #d93b3b);
+        border-color: rgba(255, 210, 210, 0.7);
+        color: #fff;
+      }
+
       .calendar-day.recorded-good {
         background: linear-gradient(180deg, #0a7dff, #005ad4);
         border-color: rgba(255, 255, 255, 0.5);
@@ -1291,7 +1303,8 @@
               <div class="calendar-grid" id="calendar-grid"></div>
               <div class="calendar-legend">
                 <span>🔵 5+ ciclos</span>
-                <span>⚪ abaixo de 5</span>
+                <span>🟠 médio</span>
+                <span>🔴 ruim</span>
                 <span>⬚ sem registro</span>
               </div>
             </section>
@@ -1874,6 +1887,21 @@
         return cells;
       }
 
+      function getRecordStatus(record) {
+        const score = typeof record.qualityScore === "number" ? record.qualityScore : null;
+        const cyclesValue = Number(record.cycles || 0);
+
+        if (score !== null) {
+          if (score >= 78) return "good";
+          if (score >= 60) return "medium";
+          return "bad";
+        }
+
+        if (cyclesValue >= 5) return "good";
+        if (cyclesValue >= 4) return "medium";
+        return "bad";
+      }
+
       function calculateStreak(recordsMap) {
         let streak = 0;
         const today = new Date();
@@ -1946,10 +1974,13 @@
 
           const record = mapByDate.get(cell.dateKey);
           if (record) {
-            if (Number(record.cycles) >= 5) {
+            const status = getRecordStatus(record);
+            if (status === "good") {
               dayEl.classList.add("recorded-good");
+            } else if (status === "medium") {
+              dayEl.classList.add("recorded-medium");
             } else {
-              dayEl.classList.add("recorded-low");
+              dayEl.classList.add("recorded-bad");
             }
             const dot = document.createElement("span");
             dot.className = "dot";
