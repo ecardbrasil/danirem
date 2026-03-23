@@ -134,7 +134,8 @@
         width: min(100%, 390px);
         min-height: 100vh;
         min-height: 100dvh;
-        padding: max(var(--space-8), env(safe-area-inset-top)) var(--space-10) max(var(--space-10), env(safe-area-inset-bottom));
+        padding: max(var(--space-8), env(safe-area-inset-top)) var(--space-10)
+          calc(max(var(--space-10), env(safe-area-inset-bottom)) + 78px);
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -257,6 +258,14 @@
 
       .bottom {
         margin-bottom: 12px;
+      }
+
+      .panel {
+        display: none;
+      }
+
+      .panel.active {
+        display: block;
       }
 
       .actions {
@@ -521,6 +530,132 @@
         min-height: 1.2em;
       }
 
+      .save-progress {
+        margin-top: var(--space-3);
+        width: 100%;
+        height: 44px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.16);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        display: none;
+      }
+
+      .save-progress.active {
+        display: block;
+      }
+
+      .progress-card {
+        padding: var(--space-5);
+      }
+
+      .progress-title {
+        margin: 0;
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .progress-sub {
+        margin: var(--space-2) 0 0;
+        font-size: var(--font-size-xs);
+        color: var(--color-text-tertiary);
+      }
+
+      .progress-track {
+        margin-top: var(--space-5);
+        width: 100%;
+        height: 10px;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.18);
+        overflow: hidden;
+      }
+
+      .progress-fill {
+        height: 100%;
+        width: 0%;
+        border-radius: var(--radius-pill);
+        background: linear-gradient(90deg, #79a8ff 0%, #ffffff 100%);
+        transition: width var(--motion-slow) var(--easing-standard);
+      }
+
+      .progress-stats {
+        margin-top: var(--space-4);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+
+      .progress-stat {
+        padding: var(--space-3);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+      }
+
+      .progress-stat-label {
+        margin: 0;
+        font-size: var(--font-size-2xs);
+        color: var(--color-text-tertiary);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .progress-stat-value {
+        margin: var(--space-2) 0 0;
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-extrabold);
+      }
+
+      .progress-list {
+        margin: var(--space-5) 0 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: var(--space-3);
+      }
+
+      .progress-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: var(--font-size-xs);
+        padding: var(--space-3);
+        border-radius: var(--radius-sm);
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+
+      .app-nav {
+        position: absolute;
+        left: 14px;
+        right: 14px;
+        bottom: max(10px, env(safe-area-inset-bottom));
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-2);
+        padding: var(--space-2);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(18, 22, 74, 0.9);
+      }
+
+      .nav-btn {
+        height: 42px;
+        border: 0;
+        border-radius: var(--radius-sm);
+        background: transparent;
+        color: rgba(237, 242, 255, 0.84);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .nav-btn.active {
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+      }
+
       .onboarding {
         position: fixed;
         inset: 0;
@@ -781,43 +916,78 @@
       </section>
 
       <section class="bottom">
-        <div class="actions">
-          <button class="secondary c-btn" type="button" id="mode-sleep-now">Durma agora</button>
-          <button class="secondary c-btn" type="button" id="mode-wake-time">Hora de acordar</button>
-          <button class="secondary c-btn" type="button" id="mode-sleep-time">Hora de dormir</button>
-        </div>
-        <input class="picker" id="wake-time" type="time" />
-        <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário</button>
-        <p class="mode-label" id="mode-label">Modo atual: Durma agora</p>
-        <p class="context-note" id="context-note">Se a Dani for para a cama agora, o horário estimado para dormir aparece aqui.</p>
-        <section class="settings c-card">
-          <p class="settings-title">Configurações da Dani</p>
-          <div class="settings-grid">
-            <label class="setting-label">
-              Latência para dormir
-              <select class="setting-select" id="latency-select">
-                <option value="10">10 min</option>
-                <option value="14">14 min</option>
-                <option value="20">20 min</option>
-              </select>
-            </label>
-            <label class="setting-label">
-              Duração do ciclo
-              <select class="setting-select" id="cycle-select">
-                <option value="85">85 min</option>
-                <option value="90">90 min</option>
-                <option value="95">95 min</option>
-              </select>
-            </label>
+        <section class="panel active" id="panel-sleep">
+          <div class="actions">
+            <button class="secondary c-btn" type="button" id="mode-sleep-now">Durma agora</button>
+            <button class="secondary c-btn" type="button" id="mode-wake-time">Hora de acordar</button>
+            <button class="secondary c-btn" type="button" id="mode-sleep-time">Hora de dormir</button>
           </div>
+          <input class="picker" id="wake-time" type="time" />
+          <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário</button>
+          <p class="mode-label" id="mode-label">Modo atual: Durma agora</p>
+          <p class="context-note" id="context-note">
+            Se a Dani for para a cama agora, o horário estimado para dormir aparece aqui.
+          </p>
+          <section class="results c-card" id="results">
+            <p class="results-title" id="results-title">Horários da Dani</p>
+            <ul class="result-list" id="result-list"></ul>
+          </section>
+          <button class="save-progress c-btn" id="save-progress" type="button">Salvar na meta semanal da Dani</button>
+          <p class="assistive" id="assistive-text"></p>
+          <p class="hint">Escolha a seção da Dani, selecione o horário e use no app Relógio do iPhone</p>
         </section>
-        <section class="results c-card" id="results">
-          <p class="results-title" id="results-title">Horários da Dani</p>
-          <ul class="result-list" id="result-list"></ul>
+
+        <section class="panel" id="panel-progress">
+          <section class="progress-card c-card">
+            <h2 class="progress-title">Meta semanal da Dani: acertar 5 noites com 5+ ciclos</h2>
+            <p class="progress-sub" id="progress-sub">Nenhuma noite registrada nesta semana ainda.</p>
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-stats">
+              <div class="progress-stat">
+                <p class="progress-stat-label">Noites 5+ ciclos</p>
+                <p class="progress-stat-value" id="progress-count">0/5</p>
+              </div>
+              <div class="progress-stat">
+                <p class="progress-stat-label">Média semanal</p>
+                <p class="progress-stat-value" id="progress-average">0.0</p>
+              </div>
+            </div>
+            <ul class="progress-list" id="progress-list"></ul>
+          </section>
         </section>
-        <p class="assistive" id="assistive-text"></p>
-        <p class="hint">Escolha a seção da Dani, selecione o horário e use no app Relógio do iPhone</p>
+
+        <section class="panel" id="panel-settings">
+          <section class="settings c-card">
+            <p class="settings-title">Configurações da Dani</p>
+            <div class="settings-grid">
+              <label class="setting-label">
+                Latência para dormir
+                <select class="setting-select" id="latency-select">
+                  <option value="10">10 min</option>
+                  <option value="14">14 min</option>
+                  <option value="20">20 min</option>
+                </select>
+              </label>
+              <label class="setting-label">
+                Duração do ciclo
+                <select class="setting-select" id="cycle-select">
+                  <option value="85">85 min</option>
+                  <option value="90">90 min</option>
+                  <option value="95">95 min</option>
+                </select>
+              </label>
+            </div>
+          </section>
+        </section>
       </section>
+
+      <nav class="app-nav" aria-label="Seções do app">
+        <button class="nav-btn active" id="tab-sleep" type="button">Sono</button>
+        <button class="nav-btn" id="tab-progress" type="button">Meta 5+</button>
+        <button class="nav-btn" id="tab-settings" type="button">Ajustes</button>
+      </nav>
     </main>
     <section class="onboarding" id="onboarding" aria-live="polite">
       <div class="onboard-card c-card">
@@ -853,6 +1023,7 @@
     <script>
       const cycles = [4, 5, 6];
       const settingsStorageKey = "dani_rem_sleep_settings_v1";
+      const weeklyProgressStorageKey = "dani_rem_weekly_progress_v1";
       const defaultSettings = {
         latencyMinutes: 14,
         cycleMinutes: 90,
@@ -870,6 +1041,12 @@
       const wakeTimeActionButton = document.getElementById("wake-time-action");
       const latencySelect = document.getElementById("latency-select");
       const cycleSelect = document.getElementById("cycle-select");
+      const tabSleep = document.getElementById("tab-sleep");
+      const tabProgress = document.getElementById("tab-progress");
+      const tabSettings = document.getElementById("tab-settings");
+      const panelSleep = document.getElementById("panel-sleep");
+      const panelProgress = document.getElementById("panel-progress");
+      const panelSettings = document.getElementById("panel-settings");
       const modeLabel = document.getElementById("mode-label");
       const contextNote = document.getElementById("context-note");
       const resultsContainer = document.getElementById("results");
@@ -877,6 +1054,12 @@
       const resultList = document.getElementById("result-list");
       const clockElement = document.querySelector(".clock");
       const assistiveText = document.getElementById("assistive-text");
+      const saveProgressButton = document.getElementById("save-progress");
+      const progressFill = document.getElementById("progress-fill");
+      const progressCount = document.getElementById("progress-count");
+      const progressAverage = document.getElementById("progress-average");
+      const progressList = document.getElementById("progress-list");
+      const progressSub = document.getElementById("progress-sub");
       const infoOpenButton = document.getElementById("info-open");
       const onboarding = document.getElementById("onboarding");
       const onboardStep = document.getElementById("onboard-step");
@@ -894,6 +1077,7 @@
       let onboardingIndex = 0;
       let latencyMinutes = defaultSettings.latencyMinutes;
       let cycleMinutes = defaultSettings.cycleMinutes;
+      let selectedResult = null;
       const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
         {
@@ -972,6 +1156,8 @@
       function renderResults(items, title) {
         resultsTitle.textContent = title;
         resultList.innerHTML = "";
+        selectedResult = null;
+        saveProgressButton.classList.remove("active");
 
         for (const [index, item] of items.entries()) {
           const li = document.createElement("li");
@@ -996,11 +1182,11 @@
 
           li.appendChild(left);
           li.appendChild(badge);
-          li.addEventListener("pointerup", () => selectResult(li, item.time));
+          li.addEventListener("pointerup", () => selectResult(li, item));
           resultList.appendChild(li);
 
           if (index === items.length - 1) {
-            selectResult(li, item.time);
+            selectResult(li, item);
           }
         }
 
@@ -1034,16 +1220,24 @@
         triggerHaptic("light");
       }
 
-      function selectResult(element, time) {
+      function selectResult(element, selectedItem) {
         const listItems = resultList.querySelectorAll(".result-item");
         for (const item of listItems) {
           item.classList.remove("selected");
         }
 
         element.classList.add("selected");
+        selectedResult = {
+          time: selectedItem.time,
+          cycles: selectedItem.cycles,
+          mode,
+          recordedAt: new Date().toISOString(),
+        };
+        saveProgressButton.textContent = `Salvar ${selectedItem.cycles} ciclos na meta da Dani`;
+        saveProgressButton.classList.add("active");
         const targetLabel = mode === "wake-time" ? "dormir" : "acordar";
         assistiveText.textContent =
-          `Horário da princesa Dani para ${targetLabel}: ${time}. Próximo passo: abrir Relógio e criar o alarme nesse horário.`;
+          `Horário da princesa Dani para ${targetLabel}: ${selectedItem.time}. Próximo passo: abrir Relógio e criar o alarme nesse horário.`;
         playSelectionFeedback(element);
       }
 
@@ -1117,6 +1311,7 @@
 
         resultsContainer.classList.remove("active");
         resultList.innerHTML = "";
+        saveProgressButton.classList.remove("active");
         assistiveText.textContent = "";
       }
 
@@ -1139,6 +1334,114 @@
         });
       }
 
+      function getLocalDateKey(date = new Date()) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+      }
+
+      function loadWeeklyProgress() {
+        try {
+          const raw = localStorage.getItem(weeklyProgressStorageKey);
+          if (!raw) return [];
+          const parsed = JSON.parse(raw);
+          return Array.isArray(parsed) ? parsed : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveWeeklyProgress(records) {
+        localStorage.setItem(weeklyProgressStorageKey, JSON.stringify(records.slice(-30)));
+      }
+
+      function getLast7DateKeys() {
+        const dates = [];
+        const now = new Date();
+        for (let i = 0; i < 7; i += 1) {
+          const date = new Date(now);
+          date.setDate(now.getDate() - i);
+          dates.push(getLocalDateKey(date));
+        }
+        return dates;
+      }
+
+      function updateWeeklyProgressUI() {
+        const records = loadWeeklyProgress();
+        const last7Keys = getLast7DateKeys();
+        const mapByDate = new Map(records.map((record) => [record.dateKey, record]));
+        const last7Records = last7Keys.map((key) => mapByDate.get(key)).filter(Boolean);
+
+        const achieved = last7Records.filter((record) => Number(record.cycles) >= 5).length;
+        const average =
+          last7Records.length > 0
+            ? last7Records.reduce((sum, record) => sum + Number(record.cycles || 0), 0) / last7Records.length
+            : 0;
+        const percent = Math.min(100, (achieved / 5) * 100);
+
+        progressFill.style.width = `${percent}%`;
+        progressCount.textContent = `${achieved}/5`;
+        progressAverage.textContent = average.toFixed(1);
+        progressSub.textContent =
+          last7Records.length > 0
+            ? `A Dani registrou ${last7Records.length} noite(s) nos últimos 7 dias.`
+            : "Nenhuma noite registrada nesta semana ainda.";
+
+        progressList.innerHTML = "";
+        if (last7Records.length === 0) {
+          const emptyItem = document.createElement("li");
+          emptyItem.className = "progress-item";
+          emptyItem.textContent = "Salve uma noite no painel Sono para começar a média semanal da Dani.";
+          progressList.appendChild(emptyItem);
+          return;
+        }
+
+        last7Records
+          .sort((a, b) => (a.dateKey < b.dateKey ? 1 : -1))
+          .forEach((record) => {
+            const item = document.createElement("li");
+            item.className = "progress-item";
+            item.innerHTML = `<span>${record.dateKey}</span><strong>${record.cycles} ciclos</strong>`;
+            progressList.appendChild(item);
+          });
+      }
+
+      function saveSelectedNightProgress() {
+        if (!selectedResult) return;
+
+        const records = loadWeeklyProgress();
+        const dateKey = getLocalDateKey(new Date());
+        const updated = records.filter((record) => record.dateKey !== dateKey);
+        updated.push({
+          dateKey,
+          cycles: selectedResult.cycles,
+          time: selectedResult.time,
+          mode: selectedResult.mode,
+          savedAt: new Date().toISOString(),
+        });
+        saveWeeklyProgress(updated);
+        updateWeeklyProgressUI();
+        assistiveText.textContent = `Noite da Dani salva: ${selectedResult.cycles} ciclos (${selectedResult.time}).`;
+        triggerHaptic("success");
+      }
+
+      function switchTab(tabId) {
+        const tabMap = {
+          sleep: { button: tabSleep, panel: panelSleep },
+          progress: { button: tabProgress, panel: panelProgress },
+          settings: { button: tabSettings, panel: panelSettings },
+        };
+
+        Object.values(tabMap).forEach(({ button, panel }) => {
+          button.classList.remove("active");
+          panel.classList.remove("active");
+        });
+
+        tabMap[tabId].button.classList.add("active");
+        tabMap[tabId].panel.classList.add("active");
+      }
+
       bindPress(sleepNowButton, () => {
         setMode("sleep-now");
         calculateFromSleepNow();
@@ -1152,6 +1455,15 @@
       bindPress(wakeTimeActionButton, () => {
         openWakeTimePicker();
       });
+      bindPress(saveProgressButton, () => {
+        saveSelectedNightProgress();
+      });
+      bindPress(tabSleep, () => switchTab("sleep"));
+      bindPress(tabProgress, () => {
+        updateWeeklyProgressUI();
+        switchTab("progress");
+      });
+      bindPress(tabSettings, () => switchTab("settings"));
       wakeTimeInput.addEventListener("change", () => {
         if (mode === "wake-time") {
           calculateFromWakeTime();
@@ -1286,6 +1598,7 @@
 
       loadSettings();
       syncSettingsInputs();
+      updateWeeklyProgressUI();
       setMode("sleep-now");
       calculateFromSleepNow();
       if (shouldShowInstallOnboarding()) {
