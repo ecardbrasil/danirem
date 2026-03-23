@@ -263,7 +263,7 @@
         margin-top: 0;
         display: grid;
         gap: var(--space-4);
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
       }
 
       .secondary {
@@ -718,18 +718,19 @@
 
       <section class="bottom">
         <div class="actions">
-          <button class="secondary c-btn" type="button" id="mode-sleep">Dani vai dormir</button>
-          <button class="secondary c-btn" type="button" id="mode-wake">Dani acorda às...</button>
+          <button class="secondary c-btn" type="button" id="mode-sleep-now">Durma agora</button>
+          <button class="secondary c-btn" type="button" id="mode-wake-time">Hora de acordar</button>
+          <button class="secondary c-btn" type="button" id="mode-sleep-time">Hora de dormir</button>
         </div>
         <input class="picker" id="wake-time" type="time" />
-        <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário da Dani</button>
-        <p class="mode-label" id="mode-label">Modo atual: Dani vai dormir</p>
+        <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário</button>
+        <p class="mode-label" id="mode-label">Modo atual: Durma agora</p>
         <section class="results c-card" id="results">
           <p class="results-title" id="results-title">Horários da Dani</p>
           <ul class="result-list" id="result-list"></ul>
         </section>
         <p class="assistive" id="assistive-text"></p>
-        <p class="hint">Escolha o modo da Dani, selecione o horário e crie no app Relógio do iPhone</p>
+        <p class="hint">Escolha a seção da Dani, selecione o horário e use no app Relógio do iPhone</p>
       </section>
     </main>
     <section class="onboarding" id="onboarding" aria-live="polite">
@@ -773,8 +774,9 @@
         6: { text: "Ideal", className: "tag best" },
       };
 
-      const sleepButton = document.getElementById("mode-sleep");
-      const wakeButton = document.getElementById("mode-wake");
+      const sleepNowButton = document.getElementById("mode-sleep-now");
+      const wakeTimeButton = document.getElementById("mode-wake-time");
+      const sleepTimeButton = document.getElementById("mode-sleep-time");
       const wakeTimeInput = document.getElementById("wake-time");
       const wakeTimeActionButton = document.getElementById("wake-time-action");
       const modeLabel = document.getElementById("mode-label");
@@ -810,7 +812,7 @@
           icon: "🔵⚫",
           caption: "Rotina de princesa gremista com horário certeiro",
           title: "Como usar o DaniREM no dia a dia",
-          text: "Se a Dani vai deitar agora, toque em “Dani vai dormir”. Se já tiver compromisso, aula ou dia de Grêmio, use “Dani acorda às...”. O app mostra os melhores horários e vocês criam o alarme no app Relógio do iPhone.",
+          text: "Use “Durma agora” quando a Dani for deitar já. Use “Hora de acordar” quando ela tiver compromisso fixo. Use “Hora de dormir” quando quiser saber a que horas ela deve deitar. Depois, criem o alarme no app Relógio do iPhone.",
         },
       ];
 
@@ -826,17 +828,17 @@
         });
       }
 
-      function getWakeReferenceFromInput() {
+      function getInputReferenceTime() {
         const value = wakeTimeInput.value;
         if (!value) return null;
         const [hours, minutes] = value.split(":").map(Number);
         const now = new Date();
-        const wakeRef = new Date(now);
-        wakeRef.setHours(hours, minutes, 0, 0);
-        if (wakeRef < now) {
-          wakeRef.setDate(wakeRef.getDate() + 1);
+        const ref = new Date(now);
+        ref.setHours(hours, minutes, 0, 0);
+        if (ref < now) {
+          ref.setDate(ref.getDate() + 1);
         }
-        return wakeRef;
+        return ref;
       }
 
       function renderResults(items, title) {
@@ -911,7 +913,7 @@
         }
 
         element.classList.add("selected");
-        const targetLabel = mode === "sleep-now" ? "acordar" : "dormir";
+        const targetLabel = mode === "wake-time" ? "dormir" : "acordar";
         assistiveText.textContent =
           `Horário da princesa Dani para ${targetLabel}: ${time}. Próximo passo: abrir Relógio e criar o alarme nesse horário.`;
         playSelectionFeedback(element);
@@ -929,7 +931,7 @@
       }
 
       function calculateFromWakeTime() {
-        const wakeRef = getWakeReferenceFromInput();
+        const wakeRef = getInputReferenceTime();
         if (!wakeRef) {
           openWakeTimePicker();
           return;
@@ -943,15 +945,42 @@
         animateClockUpdate(formatTime(wakeRef));
       }
 
+      function calculateFromSleepTime() {
+        const sleepRef = getInputReferenceTime();
+        if (!sleepRef) {
+          openWakeTimePicker();
+          return;
+        }
+
+        const sleepStart = addMinutes(sleepRef, latencyMinutes);
+        const items = cycles.map((count) => {
+          const wakeAt = addMinutes(sleepStart, count * cycleMinutes);
+          return { cycles: count, time: formatTime(wakeAt) };
+        });
+        renderResults(items, "Melhores horários para a Dani acordar");
+        animateClockUpdate(items[2].time);
+      }
+
       function setMode(nextMode) {
         mode = nextMode;
-        const wakeMode = mode === "wake-time";
+        const timeSelectionMode = mode === "wake-time" || mode === "sleep-time";
 
-        wakeTimeInput.classList.toggle("active", wakeMode);
-        wakeTimeActionButton.classList.toggle("active", wakeMode);
-        wakeButton.classList.toggle("active", wakeMode);
-        sleepButton.classList.toggle("active", !wakeMode);
-        modeLabel.textContent = wakeMode ? "Modo atual: Dani acorda às..." : "Modo atual: Dani vai dormir";
+        wakeTimeInput.classList.toggle("active", timeSelectionMode);
+        wakeTimeActionButton.classList.toggle("active", timeSelectionMode);
+        sleepNowButton.classList.toggle("active", mode === "sleep-now");
+        wakeTimeButton.classList.toggle("active", mode === "wake-time");
+        sleepTimeButton.classList.toggle("active", mode === "sleep-time");
+
+        if (mode === "sleep-now") {
+          modeLabel.textContent = "Modo atual: Durma agora";
+        } else if (mode === "wake-time") {
+          modeLabel.textContent = "Modo atual: Hora de acordar";
+          wakeTimeActionButton.textContent = "Escolher hora de acordar da Dani";
+        } else {
+          modeLabel.textContent = "Modo atual: Hora de dormir";
+          wakeTimeActionButton.textContent = "Escolher hora de dormir da Dani";
+        }
+
         resultsContainer.classList.remove("active");
         resultList.innerHTML = "";
         assistiveText.textContent = "";
@@ -976,17 +1005,26 @@
         });
       }
 
-      bindPress(sleepButton, () => {
+      bindPress(sleepNowButton, () => {
         setMode("sleep-now");
         calculateFromSleepNow();
       });
-      bindPress(wakeButton, () => {
+      bindPress(wakeTimeButton, () => {
         setMode("wake-time");
+      });
+      bindPress(sleepTimeButton, () => {
+        setMode("sleep-time");
       });
       bindPress(wakeTimeActionButton, () => {
         openWakeTimePicker();
       });
-      wakeTimeInput.addEventListener("change", calculateFromWakeTime);
+      wakeTimeInput.addEventListener("change", () => {
+        if (mode === "wake-time") {
+          calculateFromWakeTime();
+        } else if (mode === "sleep-time") {
+          calculateFromSleepTime();
+        }
+      });
 
       function renderOnboarding() {
         const page = onboardingPages[onboardingIndex];
