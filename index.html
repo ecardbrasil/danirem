@@ -789,8 +789,7 @@
           <li>Confirme o nome <b>DaniREM</b> e toque em <b>Adicionar</b>.</li>
         </ol>
         <div class="install-actions">
-          <button class="onboard-btn c-btn primary" id="install-open-shortcuts" type="button">Abrir Atalhos da Dani</button>
-          <button class="onboard-btn c-btn" id="install-done" type="button">Já adicionei na tela inicial</button>
+          <button class="onboard-btn c-btn primary" id="install-done" type="button">Já adicionei na tela inicial</button>
         </div>
         <p class="install-note">No iPhone, nenhum site consegue adicionar sozinho. Esse passo precisa ser feito uma vez no Safari.</p>
       </div>
@@ -828,7 +827,6 @@
       const onboardNext = document.getElementById("onboard-next");
       const installOnboarding = document.getElementById("install-onboarding");
       const installDoneButton = document.getElementById("install-done");
-      const installOpenShortcutsButton = document.getElementById("install-open-shortcuts");
 
       let mode = "sleep-now";
       let selectedTime = "";
@@ -1169,9 +1167,6 @@
         if (event.target === onboarding) {
           closeOnboarding();
         }
-      });
-      bindPress(installOpenShortcutsButton, () => {
-        window.location.href = "shortcuts://";
       });
       bindPress(installDoneButton, () => {
         closeInstallOnboarding();
