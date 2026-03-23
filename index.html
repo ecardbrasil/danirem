@@ -721,6 +721,108 @@
         gap: var(--space-3);
       }
 
+      .progress-gamify {
+        margin-top: var(--space-4);
+        display: flex;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+      }
+
+      .gamify-pill {
+        padding: 6px 10px;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.14);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-bold);
+      }
+
+      .calendar-card {
+        margin-top: var(--space-5);
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.09);
+      }
+
+      .calendar-header {
+        margin: 0;
+        font-size: var(--font-size-xs);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: rgba(236, 242, 255, 0.82);
+      }
+
+      .calendar-weekdays {
+        margin-top: var(--space-3);
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .calendar-weekday {
+        text-align: center;
+        font-size: 0.62rem;
+        color: rgba(236, 242, 255, 0.66);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .calendar-grid {
+        margin-top: var(--space-2);
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .calendar-day {
+        min-height: 34px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        display: grid;
+        place-items: center;
+        font-size: 0.72rem;
+        color: rgba(241, 246, 255, 0.84);
+        position: relative;
+      }
+
+      .calendar-day.empty {
+        opacity: 0.3;
+      }
+
+      .calendar-day.today {
+        border-color: rgba(255, 255, 255, 0.62);
+      }
+
+      .calendar-day.recorded-low {
+        background: rgba(255, 255, 255, 0.16);
+      }
+
+      .calendar-day.recorded-good {
+        background: linear-gradient(180deg, #0a7dff, #005ad4);
+        border-color: rgba(255, 255, 255, 0.5);
+        color: #fff;
+      }
+
+      .calendar-day .dot {
+        position: absolute;
+        bottom: 3px;
+        width: 4px;
+        height: 4px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.78);
+      }
+
+      .calendar-legend {
+        margin-top: var(--space-3);
+        display: flex;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+        font-size: 0.66rem;
+        color: rgba(240, 245, 255, 0.78);
+      }
+
       .progress-item {
         display: flex;
         justify-content: space-between;
@@ -1066,6 +1168,28 @@
                 <p class="progress-stat-value" id="progress-average">0.0</p>
               </div>
             </div>
+            <div class="progress-gamify">
+              <span class="gamify-pill" id="progress-streak">Streak: 0 dias</span>
+              <span class="gamify-pill" id="progress-xp">XP da Dani: 0</span>
+            </div>
+            <section class="calendar-card">
+              <p class="calendar-header" id="calendar-header">Calendário da Dani</p>
+              <div class="calendar-weekdays">
+                <span class="calendar-weekday">D</span>
+                <span class="calendar-weekday">S</span>
+                <span class="calendar-weekday">T</span>
+                <span class="calendar-weekday">Q</span>
+                <span class="calendar-weekday">Q</span>
+                <span class="calendar-weekday">S</span>
+                <span class="calendar-weekday">S</span>
+              </div>
+              <div class="calendar-grid" id="calendar-grid"></div>
+              <div class="calendar-legend">
+                <span>🔵 5+ ciclos</span>
+                <span>⚪ abaixo de 5</span>
+                <span>⬚ sem registro</span>
+              </div>
+            </section>
             <ul class="progress-list" id="progress-list"></ul>
           </section>
         </section>
@@ -1183,6 +1307,10 @@
       const progressAverage = document.getElementById("progress-average");
       const progressList = document.getElementById("progress-list");
       const progressSub = document.getElementById("progress-sub");
+      const progressStreak = document.getElementById("progress-streak");
+      const progressXp = document.getElementById("progress-xp");
+      const calendarHeader = document.getElementById("calendar-header");
+      const calendarGrid = document.getElementById("calendar-grid");
       const infoOpenButton = document.getElementById("info-open");
       const onboarding = document.getElementById("onboarding");
       const onboardStep = document.getElementById("onboard-step");
@@ -1502,6 +1630,51 @@
         return dates;
       }
 
+      function getMonthLabel(date) {
+        return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+      }
+
+      function getMonthlyCalendarCells(date) {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        const firstDay = new Date(year, month, 1);
+        const lastDay = new Date(year, month + 1, 0);
+        const leadingEmpty = firstDay.getDay();
+        const daysInMonth = lastDay.getDate();
+
+        const cells = [];
+        for (let i = 0; i < leadingEmpty; i += 1) {
+          cells.push({ type: "empty" });
+        }
+        for (let day = 1; day <= daysInMonth; day += 1) {
+          const dateObj = new Date(year, month, day);
+          cells.push({
+            type: "day",
+            day,
+            dateKey: getLocalDateKey(dateObj),
+            isToday: getLocalDateKey(dateObj) === getLocalDateKey(new Date()),
+          });
+        }
+        return cells;
+      }
+
+      function calculateStreak(recordsMap) {
+        let streak = 0;
+        const today = new Date();
+        for (let i = 0; i < 30; i += 1) {
+          const date = new Date(today);
+          date.setDate(today.getDate() - i);
+          const key = getLocalDateKey(date);
+          const record = recordsMap.get(key);
+          if (record && Number(record.cycles) >= 5) {
+            streak += 1;
+          } else {
+            break;
+          }
+        }
+        return streak;
+      }
+
       function updateWeeklyProgressUI() {
         const records = loadWeeklyProgress();
         const last7Keys = getLast7DateKeys();
@@ -1531,6 +1704,44 @@
           weeklyWidgetText.textContent = `Meta da semana: faltam ${missing} noite(s) para a Dani bater 5+ ciclos.`;
           weeklyWidgetTag.textContent = `Progresso atual: ${achieved}/5`;
         }
+
+        const streak = calculateStreak(mapByDate);
+        const xp = records.reduce((sum, record) => sum + Number(record.cycles || 0) * 10, 0);
+        progressStreak.textContent = `Streak: ${streak} dia(s)`;
+        progressXp.textContent = `XP da Dani: ${xp}`;
+
+        calendarHeader.textContent = `Calendário da Dani • ${getMonthLabel(new Date())}`;
+        calendarGrid.innerHTML = "";
+        const monthCells = getMonthlyCalendarCells(new Date());
+        monthCells.forEach((cell) => {
+          const dayEl = document.createElement("div");
+          dayEl.className = "calendar-day";
+
+          if (cell.type === "empty") {
+            dayEl.classList.add("empty");
+            calendarGrid.appendChild(dayEl);
+            return;
+          }
+
+          dayEl.textContent = String(cell.day);
+          if (cell.isToday) {
+            dayEl.classList.add("today");
+          }
+
+          const record = mapByDate.get(cell.dateKey);
+          if (record) {
+            if (Number(record.cycles) >= 5) {
+              dayEl.classList.add("recorded-good");
+            } else {
+              dayEl.classList.add("recorded-low");
+            }
+            const dot = document.createElement("span");
+            dot.className = "dot";
+            dayEl.appendChild(dot);
+          }
+
+          calendarGrid.appendChild(dayEl);
+        });
 
         progressList.innerHTML = "";
         if (last7Records.length === 0) {
