@@ -814,6 +814,10 @@
         background: rgba(255, 255, 255, 0.78);
       }
 
+      .calendar-day {
+        cursor: pointer;
+      }
+
       .calendar-legend {
         margin-top: var(--space-3);
         display: flex;
@@ -821,6 +825,107 @@
         flex-wrap: wrap;
         font-size: 0.66rem;
         color: rgba(240, 245, 255, 0.78);
+      }
+
+      .day-editor {
+        position: fixed;
+        inset: 0;
+        z-index: 35;
+        background: rgba(6, 10, 40, 0.74);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .day-editor.active {
+        display: flex;
+      }
+
+      .day-editor-card {
+        width: min(100%, 360px);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(16, 24, 80, 0.96);
+        padding: var(--space-7);
+      }
+
+      .day-editor-title {
+        margin: 0;
+        font-size: var(--font-size-md);
+      }
+
+      .day-editor-date {
+        margin: var(--space-2) 0 0;
+        font-size: var(--font-size-xs);
+        color: rgba(238, 244, 255, 0.82);
+      }
+
+      .day-editor-grid {
+        margin-top: var(--space-5);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+
+      .day-editor-label {
+        display: grid;
+        gap: var(--space-2);
+        font-size: var(--font-size-xs);
+        color: rgba(239, 244, 255, 0.9);
+      }
+
+      .day-editor-input {
+        width: 100%;
+        height: 42px;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        padding: 0 var(--space-3);
+        font-size: var(--font-size-sm);
+      }
+
+      .day-editor-score {
+        margin-top: var(--space-5);
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .day-editor-score p {
+        margin: 0;
+        font-size: var(--font-size-xs);
+      }
+
+      .score-badge {
+        margin-top: var(--space-2);
+        display: inline-flex;
+        padding: 4px 10px;
+        border-radius: var(--radius-pill);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .score-good {
+        background: rgba(10, 125, 255, 0.24);
+        color: #d9ebff;
+      }
+
+      .score-bad {
+        background: rgba(255, 255, 255, 0.2);
+        color: #f3f7ff;
+      }
+
+      .day-editor-actions {
+        margin-top: var(--space-6);
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
       }
 
       .progress-item {
@@ -1263,6 +1368,30 @@
         <p class="install-note">No iPhone, nenhum site consegue adicionar sozinho. Esse passo precisa ser feito uma vez no Safari.</p>
       </div>
     </section>
+    <section class="day-editor" id="day-editor" aria-live="polite">
+      <div class="day-editor-card c-card">
+        <h3 class="day-editor-title">Editar sono da Dani</h3>
+        <p class="day-editor-date" id="day-editor-date">Data</p>
+        <div class="day-editor-grid">
+          <label class="day-editor-label">
+            Hora que dormiu
+            <input class="day-editor-input" id="day-editor-sleep" type="time" />
+          </label>
+          <label class="day-editor-label">
+            Hora que acordou
+            <input class="day-editor-input" id="day-editor-wake" type="time" />
+          </label>
+        </div>
+        <section class="day-editor-score">
+          <p id="day-editor-summary">Preencha os horários para calcular.</p>
+          <span class="score-badge score-bad" id="day-editor-badge">Sem pontuação</span>
+        </section>
+        <div class="day-editor-actions">
+          <button class="onboard-btn c-btn" id="day-editor-cancel" type="button">Cancelar</button>
+          <button class="onboard-btn c-btn primary" id="day-editor-save" type="button">Salvar dia</button>
+        </div>
+      </div>
+    </section>
     <script>
       const cycles = [4, 5, 6];
       const settingsStorageKey = "dani_rem_sleep_settings_v1";
@@ -1323,6 +1452,14 @@
       const onboardNext = document.getElementById("onboard-next");
       const installOnboarding = document.getElementById("install-onboarding");
       const installDoneButton = document.getElementById("install-done");
+      const dayEditor = document.getElementById("day-editor");
+      const dayEditorDate = document.getElementById("day-editor-date");
+      const dayEditorSleep = document.getElementById("day-editor-sleep");
+      const dayEditorWake = document.getElementById("day-editor-wake");
+      const dayEditorSummary = document.getElementById("day-editor-summary");
+      const dayEditorBadge = document.getElementById("day-editor-badge");
+      const dayEditorCancel = document.getElementById("day-editor-cancel");
+      const dayEditorSave = document.getElementById("day-editor-save");
 
       let mode = "sleep-now";
       let onboardingIndex = 0;
@@ -1330,6 +1467,7 @@
       let cycleMinutes = defaultSettings.cycleMinutes;
       let appTheme = defaultSettings.theme;
       let selectedResult = null;
+      let selectedEditorDateKey = "";
       const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
         {
@@ -1634,6 +1772,84 @@
         return date.toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
       }
 
+      function getDateLabel(dateKey) {
+        const [year, month, day] = dateKey.split("-").map(Number);
+        return new Date(year, month - 1, day).toLocaleDateString("pt-BR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        });
+      }
+
+      function parseTimeToMinutes(value) {
+        if (!value) return null;
+        const [hours, minutes] = value.split(":").map(Number);
+        if (Number.isNaN(hours) || Number.isNaN(minutes)) return null;
+        return hours * 60 + minutes;
+      }
+
+      function calculateSleepDurationMinutes(sleepTime, wakeTime) {
+        const sleepMinutes = parseTimeToMinutes(sleepTime);
+        const wakeMinutes = parseTimeToMinutes(wakeTime);
+        if (sleepMinutes === null || wakeMinutes === null) return null;
+
+        let duration = wakeMinutes - sleepMinutes;
+        if (duration <= 0) {
+          duration += 24 * 60;
+        }
+        return duration;
+      }
+
+      function evaluateSleepQuality(durationMinutes) {
+        if (!durationMinutes) {
+          return { score: 0, label: "Sem pontuação", quality: "bad" };
+        }
+
+        const cycleUnits = durationMinutes / cycleMinutes;
+        const cycleAlignmentPenalty = Math.min(30, Math.abs(cycleUnits - Math.round(cycleUnits)) * 80);
+        const durationPenalty = durationMinutes < 390 || durationMinutes > 570 ? 22 : 0;
+        const rawScore = Math.max(35, Math.round(100 - cycleAlignmentPenalty - durationPenalty));
+        const quality = rawScore >= 78 ? "good" : "bad";
+        const label = quality === "good" ? "Bom para a Dani" : "Ruim para a Dani";
+
+        return { score: rawScore, label, quality };
+      }
+
+      function updateDayEditorScore() {
+        const duration = calculateSleepDurationMinutes(dayEditorSleep.value, dayEditorWake.value);
+        if (!duration) {
+          dayEditorSummary.textContent = "Preencha os horários para calcular.";
+          dayEditorBadge.textContent = "Sem pontuação";
+          dayEditorBadge.classList.remove("score-good");
+          dayEditorBadge.classList.add("score-bad");
+          return null;
+        }
+
+        const quality = evaluateSleepQuality(duration);
+        const hours = Math.floor(duration / 60);
+        const minutes = duration % 60;
+        const cyclesValue = (duration / cycleMinutes).toFixed(1);
+        dayEditorSummary.textContent = `Duração: ${hours}h${String(minutes).padStart(2, "0")} • ${cyclesValue} ciclos • Score ${quality.score}`;
+        dayEditorBadge.textContent = quality.label;
+        dayEditorBadge.classList.toggle("score-good", quality.quality === "good");
+        dayEditorBadge.classList.toggle("score-bad", quality.quality !== "good");
+        return { duration, cycles: Number(cyclesValue), quality };
+      }
+
+      function openDayEditor(dateKey, existingRecord) {
+        selectedEditorDateKey = dateKey;
+        dayEditorDate.textContent = getDateLabel(dateKey);
+        dayEditorSleep.value = existingRecord?.sleptAt || "";
+        dayEditorWake.value = existingRecord?.wokeAt || "";
+        updateDayEditorScore();
+        dayEditor.classList.add("active");
+      }
+
+      function closeDayEditor() {
+        dayEditor.classList.remove("active");
+        selectedEditorDateKey = "";
+      }
+
       function getMonthlyCalendarCells(date) {
         const year = date.getFullYear();
         const month = date.getMonth();
@@ -1740,6 +1956,10 @@
             dayEl.appendChild(dot);
           }
 
+          dayEl.addEventListener("pointerup", () => {
+            openDayEditor(cell.dateKey, record);
+          });
+
           calendarGrid.appendChild(dayEl);
         });
 
@@ -1781,6 +2001,31 @@
         triggerHaptic("success");
       }
 
+      function saveDayEditorRecord() {
+        if (!selectedEditorDateKey) return;
+
+        const scoreData = updateDayEditorScore();
+        if (!scoreData) return;
+
+        const records = loadWeeklyProgress();
+        const updated = records.filter((record) => record.dateKey !== selectedEditorDateKey);
+        updated.push({
+          dateKey: selectedEditorDateKey,
+          cycles: scoreData.cycles,
+          sleptAt: dayEditorSleep.value,
+          wokeAt: dayEditorWake.value,
+          durationMinutes: scoreData.duration,
+          qualityScore: scoreData.quality.score,
+          qualityLabel: scoreData.quality.label,
+          mode: "manual-edit",
+          savedAt: new Date().toISOString(),
+        });
+        saveWeeklyProgress(updated);
+        updateWeeklyProgressUI();
+        closeDayEditor();
+        triggerHaptic("success");
+      }
+
       function switchTab(tabId) {
         const tabMap = {
           sleep: { button: tabSleep, panel: panelSleep },
@@ -1819,6 +2064,15 @@
         switchTab("progress");
       });
       bindPress(tabSettings, () => switchTab("settings"));
+      dayEditorSleep.addEventListener("change", updateDayEditorScore);
+      dayEditorWake.addEventListener("change", updateDayEditorScore);
+      bindPress(dayEditorCancel, () => closeDayEditor());
+      bindPress(dayEditorSave, () => saveDayEditorRecord());
+      dayEditor.addEventListener("pointerup", (event) => {
+        if (event.target === dayEditor) {
+          closeDayEditor();
+        }
+      });
       wakeTimeInput.addEventListener("change", () => {
         if (mode === "wake-time") {
           calculateFromWakeTime();
