@@ -320,6 +320,24 @@
         pointer-events: auto;
       }
 
+      .wake-picker-action {
+        margin-top: var(--space-3);
+        width: 100%;
+        height: 44px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: var(--radius-md);
+        background: rgba(255, 255, 255, 0.14);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        display: none;
+        touch-action: manipulation;
+      }
+
+      .wake-picker-action.active {
+        display: block;
+      }
+
       .results {
         margin-top: 12px;
         padding: 12px;
@@ -753,6 +771,7 @@
           <button class="secondary c-btn" type="button" id="mode-wake">Dani acorda às...</button>
         </div>
         <input class="picker" id="wake-time" type="time" />
+        <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário da Dani</button>
         <p class="mode-label" id="mode-label">Modo atual: Dani vai dormir</p>
         <section class="results c-card" id="results">
           <p class="results-title" id="results-title">Horários da Dani</p>
@@ -760,7 +779,7 @@
         </section>
         <button class="final-cta c-btn" id="create-alarm" type="button">Criar alarme da Dani</button>
         <p class="assistive" id="assistive-text"></p>
-        <p class="hint">Escolha o modo da Dani e selecione o melhor horário da princesa</p>
+        <p class="hint">Escolha o modo da Dani e toque em “Escolher horário” no iPhone</p>
       </section>
     </main>
     <section class="onboarding" id="onboarding" aria-live="polite">
@@ -808,6 +827,7 @@
       const sleepButton = document.getElementById("mode-sleep");
       const wakeButton = document.getElementById("mode-wake");
       const wakeTimeInput = document.getElementById("wake-time");
+      const wakeTimeActionButton = document.getElementById("wake-time-action");
       const modeLabel = document.getElementById("mode-label");
       const resultsContainer = document.getElementById("results");
       const resultsTitle = document.getElementById("results-title");
@@ -974,8 +994,7 @@
       function calculateFromWakeTime() {
         const wakeRef = getWakeReferenceFromInput();
         if (!wakeRef) {
-          wakeTimeInput.showPicker?.();
-          wakeTimeInput.focus();
+          openWakeTimePicker();
           return;
         }
 
@@ -992,6 +1011,7 @@
         const wakeMode = mode === "wake-time";
 
         wakeTimeInput.classList.toggle("active", wakeMode);
+        wakeTimeActionButton.classList.toggle("active", wakeMode);
         wakeButton.classList.toggle("active", wakeMode);
         sleepButton.classList.toggle("active", !wakeMode);
         modeLabel.textContent = wakeMode ? "Modo atual: Dani acorda às..." : "Modo atual: Dani vai dormir";
@@ -1051,6 +1071,16 @@
         window.location.href = shortcutUrl;
       }
 
+      function openWakeTimePicker() {
+        if (typeof wakeTimeInput.showPicker === "function") {
+          wakeTimeInput.showPicker();
+          return;
+        }
+
+        wakeTimeInput.focus();
+        wakeTimeInput.click();
+      }
+
       function bindPress(button, handler) {
         button.addEventListener("pointerup", handler);
         button.addEventListener("click", (event) => {
@@ -1066,8 +1096,9 @@
       });
       bindPress(wakeButton, () => {
         setMode("wake-time");
-        wakeTimeInput.showPicker?.();
-        wakeTimeInput.focus();
+      });
+      bindPress(wakeTimeActionButton, () => {
+        openWakeTimePicker();
       });
       wakeTimeInput.addEventListener("change", calculateFromWakeTime);
       bindPress(createAlarmButton, async () => {
