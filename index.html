@@ -1,0 +1,1075 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="DaniREM" />
+    <meta name="theme-color" content="#120f66" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <title>DaniREM</title>
+    <style>
+      /* DaniREM Design System: tokens + component primitives */
+      :root {
+        /* Color tokens */
+        --color-bg-strong: #120f66;
+        --color-bg-mid: #3f2ad6;
+        --color-bg-deep: #091570;
+        --color-glow-pink: rgba(255, 102, 199, 0.45);
+        --color-glow-blue: rgba(45, 120, 255, 0.5);
+        --color-text-primary: #f6f8ff;
+        --color-text-secondary: rgba(235, 240, 255, 0.74);
+        --color-text-tertiary: rgba(236, 241, 255, 0.78);
+        --color-surface-soft: rgba(255, 255, 255, 0.08);
+        --color-surface-strong: rgba(255, 255, 255, 0.2);
+        --color-stroke-soft: rgba(255, 255, 255, 0.16);
+        --color-stroke-strong: rgba(255, 255, 255, 0.42);
+        --color-overlay: rgba(6, 10, 40, 0.72);
+        --color-pill-bg: #ffffff;
+        --color-pill-text: #152053;
+        --color-tag-default-bg: #ebf0ff;
+        --color-tag-default-text: #12204f;
+        --color-tag-good-bg: #dff8e8;
+        --color-tag-good-text: #1b6c43;
+
+        /* Typography tokens */
+        --font-family-base:
+          -apple-system, BlinkMacSystemFont, "Avenir Next", "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue",
+          sans-serif;
+        --font-size-2xs: 0.7rem;
+        --font-size-xs: 0.78rem;
+        --font-size-sm: 0.86rem;
+        --font-size-md: 0.95rem;
+        --font-size-lg: 1.1rem;
+        --font-size-xl: 1.2rem;
+        --font-size-display: 5.2rem;
+        --font-weight-medium: 500;
+        --font-weight-bold: 700;
+        --font-weight-extrabold: 800;
+
+        /* Spacing tokens */
+        --space-1: 2px;
+        --space-2: 6px;
+        --space-3: 8px;
+        --space-4: 10px;
+        --space-5: 12px;
+        --space-6: 14px;
+        --space-7: 16px;
+        --space-8: 18px;
+        --space-9: 20px;
+        --space-10: 26px;
+
+        /* Radius tokens */
+        --radius-sm: 12px;
+        --radius-md: 14px;
+        --radius-lg: 16px;
+        --radius-xl: 18px;
+        --radius-pill: 999px;
+
+        /* Motion tokens */
+        --motion-fast: 120ms;
+        --motion-base: 180ms;
+        --motion-slow: 280ms;
+        --easing-standard: ease;
+        --easing-enter: ease-out;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+        font-family: var(--font-family-base);
+        color: var(--color-text-primary);
+        background:
+          radial-gradient(circle at 16% 45%, var(--color-glow-pink) 0%, rgba(255, 102, 199, 0) 42%),
+          radial-gradient(circle at 86% 72%, var(--color-glow-blue) 0%, rgba(45, 120, 255, 0) 38%),
+          linear-gradient(182deg, var(--color-bg-mid) 0%, var(--color-bg-strong) 50%, var(--color-bg-deep) 100%);
+        display: grid;
+        place-items: center;
+        padding: 0;
+      }
+
+      :where(button, input) {
+        font-family: var(--font-family-base);
+      }
+
+      /* Component primitives */
+      .c-card {
+        border: 1px solid var(--color-stroke-soft);
+        background: var(--color-surface-soft);
+        border-radius: var(--radius-lg);
+      }
+
+      .c-btn {
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 0.01em;
+      }
+
+      .c-btn--pill {
+        border-radius: var(--radius-pill);
+      }
+
+      .c-text-muted {
+        color: var(--color-text-secondary);
+      }
+
+      :where(.secondary, .final-cta, .onboard-btn, .info-btn) {
+        transition:
+          transform var(--motion-fast) var(--easing-standard),
+          background-color var(--motion-base) var(--easing-standard),
+          border-color var(--motion-base) var(--easing-standard),
+          opacity var(--motion-base) var(--easing-standard);
+      }
+
+      .phone {
+        width: min(100%, 390px);
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: max(var(--space-8), env(safe-area-inset-top)) var(--space-10) max(var(--space-10), env(safe-area-inset-bottom));
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .top {
+        text-align: center;
+        margin-top: 46px;
+        animation: fade-up var(--motion-slow) var(--easing-enter);
+        position: relative;
+      }
+
+      .info-btn {
+        position: absolute;
+        right: 0;
+        top: -8px;
+        width: 34px;
+        height: 34px;
+        border-radius: var(--radius-pill);
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--color-text-primary);
+        font-size: 0.95rem;
+        font-weight: var(--font-weight-extrabold);
+        line-height: 1;
+        touch-action: manipulation;
+      }
+
+      .eyebrow {
+        margin: 0;
+        font-size: 0.84rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: rgba(237, 241, 255, 0.58);
+        font-weight: var(--font-weight-medium);
+      }
+
+      .art {
+        width: 180px;
+        height: 140px;
+        margin: 42px auto 30px;
+        position: relative;
+        filter: drop-shadow(0 12px 24px rgba(4, 6, 32, 0.35));
+      }
+
+      .cloud {
+        position: absolute;
+        width: 136px;
+        height: 78px;
+        border-radius: 999px;
+        left: 22px;
+        bottom: 16px;
+        background: radial-gradient(circle at 40% 22%, rgba(255, 255, 255, 0.95), rgba(248, 250, 255, 0.45));
+        backdrop-filter: blur(6px);
+      }
+
+      .cloud::before {
+        content: "";
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        left: -24px;
+        top: 8px;
+        background: inherit;
+      }
+
+      .moon {
+        position: absolute;
+        width: 118px;
+        height: 118px;
+        border-radius: 50%;
+        top: 0;
+        left: 68px;
+        background: radial-gradient(circle at 30% 30%, #fff4c5 0%, #ffe59c 62%, #f2cd6f 100%);
+      }
+
+      .moon::after {
+        content: "";
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        top: -5px;
+        left: 40px;
+        background: linear-gradient(185deg, #5e45df 0%, #3b2fc8 40%, #2a2798 100%);
+      }
+
+      .message {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 1.1;
+        font-weight: var(--font-weight-extrabold);
+        letter-spacing: -0.03em;
+      }
+
+      .subtext {
+        margin: 8px auto 0;
+        max-width: 260px;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+      }
+
+      .clock {
+        margin-top: 18px;
+        font-size: var(--font-size-display);
+        line-height: 0.95;
+        letter-spacing: -0.06em;
+        font-weight: var(--font-weight-extrabold);
+        transition: transform var(--motion-base) var(--easing-standard), opacity var(--motion-base) var(--easing-standard);
+      }
+
+      .clock.is-updated {
+        transform: translateY(-2px) scale(1.015);
+        opacity: 0.95;
+      }
+
+      .bottom {
+        margin-bottom: 12px;
+      }
+
+      .actions {
+        margin-top: 0;
+        display: grid;
+        gap: var(--space-4);
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .secondary {
+        width: 100%;
+        height: 48px;
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        border-radius: var(--radius-md);
+        background: var(--color-surface-soft);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 0.01em;
+        touch-action: manipulation;
+      }
+
+      .secondary:active {
+        transform: scale(0.985);
+      }
+
+      .secondary.active {
+        background: var(--color-surface-strong);
+        border-color: var(--color-stroke-strong);
+      }
+
+      .hint {
+        margin: 26px 0 0;
+        text-align: center;
+        font-size: 0.9rem;
+        color: var(--color-text-tertiary);
+      }
+
+      .picker {
+        margin-top: 10px;
+        width: 100%;
+        height: 48px;
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        background: var(--color-surface-soft);
+        color: var(--color-text-primary);
+        padding: 0 12px;
+        font-size: var(--font-size-md);
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-6px);
+        pointer-events: none;
+        transition: max-height var(--motion-base) var(--easing-standard), opacity var(--motion-base) var(--easing-standard), transform var(--motion-base) var(--easing-standard);
+        touch-action: manipulation;
+      }
+
+      .picker.active {
+        max-height: 48px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .results {
+        margin-top: 12px;
+        padding: 12px;
+        min-height: 176px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--color-stroke-soft);
+        background: var(--color-surface-soft);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: opacity var(--motion-base) var(--easing-standard), transform var(--motion-base) var(--easing-standard);
+      }
+
+      .results.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .results-title {
+        margin: 0 0 8px;
+        font-size: 0.82rem;
+        font-weight: var(--font-weight-bold);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(237, 241, 255, 0.8);
+      }
+
+      .result-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: var(--space-3);
+      }
+
+      .result-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-radius: var(--radius-sm);
+        padding: 9px 10px;
+        border: 1px solid var(--color-stroke-soft);
+        background: rgba(255, 255, 255, 0.06);
+        cursor: pointer;
+        transition: transform var(--motion-fast) var(--easing-standard), background-color var(--motion-base) var(--easing-standard), border-color var(--motion-base) var(--easing-standard);
+        animation: fade-up 200ms ease both;
+        touch-action: manipulation;
+      }
+
+      .result-item:active {
+        transform: scale(0.992);
+      }
+
+      .result-item.selected {
+        border-color: rgba(255, 255, 255, 0.62);
+        background: var(--color-surface-strong);
+      }
+
+      .result-item.just-selected {
+        animation: selected-pop 180ms ease-out;
+      }
+
+      .result-time {
+        margin: 0;
+        font-size: var(--font-size-lg);
+        font-weight: var(--font-weight-extrabold);
+        letter-spacing: -0.02em;
+      }
+
+      .result-meta {
+        margin: 2px 0 0;
+        font-size: var(--font-size-xs);
+        color: rgba(238, 243, 255, 0.78);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 58px;
+        height: 24px;
+        padding: 0 8px;
+        border-radius: var(--radius-pill);
+        font-size: var(--font-size-2xs);
+        font-weight: var(--font-weight-extrabold);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--color-tag-default-text);
+        background: var(--color-tag-default-bg);
+      }
+
+      .tag.good {
+        background: var(--color-tag-good-bg);
+        color: var(--color-tag-good-text);
+      }
+
+      .tag.best {
+        background: var(--color-pill-bg);
+        color: var(--color-tag-default-text);
+      }
+
+      .mode-label {
+        margin: 8px 0 0;
+        text-align: center;
+        font-size: 0.82rem;
+        color: rgba(236, 241, 255, 0.88);
+      }
+
+      .final-cta {
+        margin-top: 10px;
+        width: 100%;
+        height: 54px;
+        border: 0;
+        border-radius: var(--radius-md);
+        background: var(--color-pill-bg);
+        color: #111f52;
+        font-size: var(--font-size-md);
+        font-weight: var(--font-weight-extrabold);
+        letter-spacing: -0.01em;
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(8px);
+        pointer-events: none;
+        transition: max-height var(--motion-base) var(--easing-standard), opacity var(--motion-base) var(--easing-standard), transform var(--motion-base) var(--easing-standard), filter var(--motion-base) var(--easing-standard);
+        touch-action: manipulation;
+      }
+
+      .final-cta:active {
+        transform: scale(0.988);
+      }
+
+      .final-cta.active {
+        max-height: 54px;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .final-cta.confirmed {
+        animation: cta-confirm 320ms ease-out;
+      }
+
+      .assistive {
+        margin: 8px 0 0;
+        font-size: var(--font-size-xs);
+        color: rgba(237, 241, 255, 0.8);
+        text-align: center;
+        min-height: 1.2em;
+      }
+
+      .onboarding {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        background: var(--color-overlay);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .onboarding.active {
+        display: flex;
+      }
+
+      .onboard-card {
+        width: min(100%, 360px);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(19, 27, 84, 0.95);
+        padding: 16px 14px 14px;
+      }
+
+      .onboard-step {
+        margin: 0;
+        font-size: var(--font-size-2xs);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: rgba(240, 245, 255, 0.7);
+      }
+
+      .onboard-title {
+        margin: 6px 0 8px;
+        font-size: var(--font-size-xl);
+        line-height: 1.2;
+      }
+
+      .onboard-text {
+        margin: 0;
+        font-size: var(--font-size-md);
+        line-height: 1.45;
+        color: rgba(238, 243, 255, 0.9);
+      }
+
+      .onboard-visual {
+        margin: var(--space-5) 0 var(--space-5);
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+        padding: var(--space-5);
+        display: grid;
+        justify-items: center;
+        gap: var(--space-3);
+        animation: fade-up var(--motion-base) var(--easing-enter);
+      }
+
+      .onboard-badge {
+        width: 64px;
+        height: 64px;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        display: grid;
+        place-items: center;
+        font-size: 1.8rem;
+      }
+
+      .onboard-caption {
+        margin: 0;
+        font-size: var(--font-size-xs);
+        color: rgba(239, 244, 255, 0.86);
+        letter-spacing: 0.02em;
+        text-align: center;
+      }
+
+      .onboard-dots {
+        margin-top: var(--space-5);
+        display: flex;
+        justify-content: center;
+        gap: var(--space-3);
+      }
+
+      .onboard-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.28);
+        border: 0;
+        padding: 0;
+      }
+
+      .onboard-dot.active {
+        width: 20px;
+        background: #ffffff;
+      }
+
+      .onboard-actions {
+        margin-top: 14px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-3);
+      }
+
+      .onboard-btn {
+        height: 42px;
+        border-radius: var(--radius-sm);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.12);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-sm);
+        font-weight: var(--font-weight-bold);
+        touch-action: manipulation;
+      }
+
+      .onboard-btn.primary {
+        background: #ffffff;
+        color: #132667;
+        border: 0;
+      }
+
+      @keyframes fade-up {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes selected-pop {
+        0% {
+          transform: scale(0.985);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
+
+      @keyframes cta-confirm {
+        0% {
+          transform: scale(1);
+          filter: brightness(1);
+        }
+        45% {
+          transform: scale(1.01);
+          filter: brightness(1.04);
+        }
+        100% {
+          transform: scale(1);
+          filter: brightness(1);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      @media (max-width: 430px) {
+        body {
+          background: linear-gradient(182deg, #2f24b5 0%, #140f6f 55%, #0c1a74 100%);
+        }
+
+        .art {
+          filter: none;
+        }
+
+        .cloud {
+          backdrop-filter: none;
+        }
+
+        .onboarding {
+          backdrop-filter: none;
+        }
+      }
+
+      @media (max-height: 760px) {
+        .top {
+          margin-top: 26px;
+        }
+
+        .art {
+          margin-top: 28px;
+          margin-bottom: 18px;
+          transform: scale(0.9);
+        }
+
+        .clock {
+          font-size: 4.4rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone">
+      <section class="top">
+        <button class="info-btn c-btn c-btn--pill" id="info-open" type="button" aria-label="Entender o sono da Dani">i</button>
+        <p class="eyebrow">DaniREM</p>
+        <div class="art" aria-hidden="true">
+          <div class="cloud"></div>
+          <div class="moon"></div>
+        </div>
+        <h1 class="message">Dorme bem, gatinha</h1>
+        <p class="subtext c-text-muted">O DaniREM escolhe o melhor horário para a Dani acordar leve e descansada.</p>
+        <p class="clock">00:15</p>
+      </section>
+
+      <section class="bottom">
+        <div class="actions">
+          <button class="secondary c-btn" type="button" id="mode-sleep">Dani vai dormir</button>
+          <button class="secondary c-btn" type="button" id="mode-wake">Dani acorda às...</button>
+        </div>
+        <input class="picker" id="wake-time" type="time" />
+        <p class="mode-label" id="mode-label">Modo atual: Dani vai dormir</p>
+        <section class="results c-card" id="results">
+          <p class="results-title" id="results-title">Horários da Dani</p>
+          <ul class="result-list" id="result-list"></ul>
+        </section>
+        <button class="final-cta c-btn" id="create-alarm" type="button">Criar alarme da Dani</button>
+        <p class="assistive" id="assistive-text"></p>
+        <p class="hint">Escolha o modo da Dani e selecione o melhor horário da princesa</p>
+      </section>
+    </main>
+    <section class="onboarding" id="onboarding" aria-live="polite">
+      <div class="onboard-card c-card">
+        <p class="onboard-step" id="onboard-step">Passo 1 de 2</p>
+        <div class="onboard-visual" id="onboard-visual" aria-hidden="true">
+          <div class="onboard-badge" id="onboard-badge">🌙</div>
+          <p class="onboard-caption" id="onboard-caption"></p>
+        </div>
+        <h2 class="onboard-title" id="onboard-title"></h2>
+        <p class="onboard-text" id="onboard-text"></p>
+        <div class="onboard-dots" id="onboard-dots" aria-label="Progresso do guia"></div>
+        <div class="onboard-actions">
+          <button class="onboard-btn c-btn" id="onboard-back" type="button">Voltar</button>
+          <button class="onboard-btn primary c-btn" id="onboard-next" type="button">Próximo</button>
+        </div>
+      </div>
+    </section>
+    <script>
+      const cycleMinutes = 90;
+      const latencyMinutes = 14;
+      const cycles = [4, 5, 6];
+      const alarmShortcutName = "DaniREM Alarme";
+      const labels = {
+        4: { text: "Mínimo", className: "tag" },
+        5: { text: "Bom", className: "tag good" },
+        6: { text: "Ideal", className: "tag best" },
+      };
+
+      const sleepButton = document.getElementById("mode-sleep");
+      const wakeButton = document.getElementById("mode-wake");
+      const wakeTimeInput = document.getElementById("wake-time");
+      const modeLabel = document.getElementById("mode-label");
+      const resultsContainer = document.getElementById("results");
+      const resultsTitle = document.getElementById("results-title");
+      const resultList = document.getElementById("result-list");
+      const clockElement = document.querySelector(".clock");
+      const createAlarmButton = document.getElementById("create-alarm");
+      const assistiveText = document.getElementById("assistive-text");
+      const infoOpenButton = document.getElementById("info-open");
+      const onboarding = document.getElementById("onboarding");
+      const onboardStep = document.getElementById("onboard-step");
+      const onboardBadge = document.getElementById("onboard-badge");
+      const onboardCaption = document.getElementById("onboard-caption");
+      const onboardTitle = document.getElementById("onboard-title");
+      const onboardText = document.getElementById("onboard-text");
+      const onboardDots = document.getElementById("onboard-dots");
+      const onboardBack = document.getElementById("onboard-back");
+      const onboardNext = document.getElementById("onboard-next");
+
+      let mode = "sleep-now";
+      let selectedTime = "";
+      let onboardingIndex = 0;
+      const onboardingPages = [
+        {
+          icon: "🩺",
+          caption: "Medicina + REM = foco e memória para a Dani",
+          title: "A ciência do sono da Dani",
+          text: "A Dani estuda medicina, então memória e atenção importam muito. No sono REM, o cérebro consolida aprendizado e organiza emoções. Quando ela acorda no fim de um ciclo, costuma levantar mais leve e com a mente mais clara.",
+        },
+        {
+          icon: "🔵⚫",
+          caption: "Rotina de princesa gremista com horário certeiro",
+          title: "Como usar o DaniREM no dia a dia",
+          text: "Se a Dani vai deitar agora, toque em “Dani vai dormir”. Se já tiver compromisso, aula ou dia de Grêmio, use “Dani acorda às...”. O app mostra os melhores horários e você só confirma o alarme da princesa Dani.",
+        },
+      ];
+
+      function addMinutes(date, minutes) {
+        return new Date(date.getTime() + minutes * 60000);
+      }
+
+      function formatTime(date) {
+        return date.toLocaleTimeString("pt-BR", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+      }
+
+      function getWakeReferenceFromInput() {
+        const value = wakeTimeInput.value;
+        if (!value) return null;
+        const [hours, minutes] = value.split(":").map(Number);
+        const now = new Date();
+        const wakeRef = new Date(now);
+        wakeRef.setHours(hours, minutes, 0, 0);
+        if (wakeRef < now) {
+          wakeRef.setDate(wakeRef.getDate() + 1);
+        }
+        return wakeRef;
+      }
+
+      function renderResults(items, title) {
+        resultsTitle.textContent = title;
+        resultList.innerHTML = "";
+        selectedTime = "";
+
+        for (const [index, item] of items.entries()) {
+          const li = document.createElement("li");
+          li.className = "result-item";
+          li.style.animationDelay = `${index * 45}ms`;
+
+          const left = document.createElement("div");
+          const time = document.createElement("p");
+          time.className = "result-time";
+          time.textContent = item.time;
+
+          const meta = document.createElement("p");
+          meta.className = "result-meta";
+          meta.textContent = `${item.cycles} ciclos`;
+
+          left.appendChild(time);
+          left.appendChild(meta);
+
+          const badge = document.createElement("span");
+          badge.className = labels[item.cycles].className;
+          badge.textContent = labels[item.cycles].text;
+
+          li.appendChild(left);
+          li.appendChild(badge);
+          li.addEventListener("pointerup", () => selectResult(li, item.time));
+          resultList.appendChild(li);
+
+          if (index === items.length - 1) {
+            selectResult(li, item.time);
+          }
+        }
+
+        resultsContainer.classList.add("active");
+      }
+
+      function animateClockUpdate(nextValue) {
+        clockElement.textContent = nextValue;
+        clockElement.classList.remove("is-updated");
+        void clockElement.offsetWidth;
+        clockElement.classList.add("is-updated");
+      }
+
+      function triggerHaptic(type) {
+        const patternMap = {
+          light: 8,
+          success: [12, 24, 12],
+        };
+
+        const pattern = patternMap[type] || patternMap.light;
+
+        if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+          navigator.vibrate(pattern);
+        }
+      }
+
+      function playSelectionFeedback(element) {
+        element.classList.remove("just-selected");
+        void element.offsetWidth;
+        element.classList.add("just-selected");
+        triggerHaptic("light");
+      }
+
+      function playConfirmationFeedback() {
+        createAlarmButton.classList.remove("confirmed");
+        void createAlarmButton.offsetWidth;
+        createAlarmButton.classList.add("confirmed");
+        triggerHaptic("success");
+      }
+
+      function selectResult(element, time) {
+        const listItems = resultList.querySelectorAll(".result-item");
+        for (const item of listItems) {
+          item.classList.remove("selected");
+        }
+
+        element.classList.add("selected");
+        selectedTime = time;
+        createAlarmButton.textContent = `Criar alarme da Dani para ${time}`;
+        createAlarmButton.classList.add("active");
+        const targetLabel = mode === "sleep-now" ? "acordar" : "dormir";
+        assistiveText.textContent = `Horário da princesa Dani para ${targetLabel}: ${time}`;
+        playSelectionFeedback(element);
+      }
+
+      function calculateFromSleepNow() {
+        const now = new Date();
+        const startSleep = addMinutes(now, latencyMinutes);
+        const items = cycles.map((count) => {
+          const wakeAt = addMinutes(startSleep, count * cycleMinutes);
+          return { cycles: count, time: formatTime(wakeAt) };
+        });
+        renderResults(items, "Melhores horários para a Dani acordar");
+        animateClockUpdate(items[2].time);
+      }
+
+      function calculateFromWakeTime() {
+        const wakeRef = getWakeReferenceFromInput();
+        if (!wakeRef) {
+          wakeTimeInput.showPicker?.();
+          wakeTimeInput.focus();
+          return;
+        }
+
+        const items = cycles.map((count) => {
+          const bedtime = addMinutes(wakeRef, -count * cycleMinutes - latencyMinutes);
+          return { cycles: count, time: formatTime(bedtime) };
+        });
+        renderResults(items, "Melhores horários para a Dani dormir");
+        animateClockUpdate(formatTime(wakeRef));
+      }
+
+      function setMode(nextMode) {
+        mode = nextMode;
+        const wakeMode = mode === "wake-time";
+
+        wakeTimeInput.classList.toggle("active", wakeMode);
+        wakeButton.classList.toggle("active", wakeMode);
+        sleepButton.classList.toggle("active", !wakeMode);
+        modeLabel.textContent = wakeMode ? "Modo atual: Dani acorda às..." : "Modo atual: Dani vai dormir";
+        selectedTime = "";
+        createAlarmButton.classList.remove("active");
+        resultsContainer.classList.remove("active");
+        resultList.innerHTML = "";
+        assistiveText.textContent = "";
+      }
+
+      function copyTimeToClipboard(time) {
+        if (navigator.clipboard && window.isSecureContext) {
+          return navigator.clipboard.writeText(time);
+        }
+
+        return new Promise((resolve) => {
+          const input = document.createElement("input");
+          input.value = time;
+          document.body.appendChild(input);
+          input.select();
+          document.execCommand("copy");
+          input.remove();
+          resolve();
+        });
+      }
+
+      function getModePayload() {
+        if (mode === "sleep-now") {
+          return {
+            mode: "wake",
+            action: "create_wake_alarm",
+          };
+        }
+
+        return {
+          mode: "sleep",
+          action: "create_sleep_alarm",
+        };
+      }
+
+      function buildShortcutUrl(time) {
+        const encodedName = encodeURIComponent(alarmShortcutName);
+        const modePayload = getModePayload();
+        const payload = {
+          app: "DaniREM",
+          time,
+          mode: modePayload.mode,
+          action: modePayload.action,
+          generatedAt: new Date().toISOString(),
+        };
+        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
+        return `shortcuts://run-shortcut?name=${encodedName}&input=text&text=${encodedPayload}`;
+      }
+
+      function openShortcutForAlarm(time) {
+        const shortcutUrl = buildShortcutUrl(time);
+        window.location.href = shortcutUrl;
+      }
+
+      function bindPress(button, handler) {
+        button.addEventListener("pointerup", handler);
+        button.addEventListener("click", (event) => {
+          if (event.detail === 0) {
+            handler(event);
+          }
+        });
+      }
+
+      bindPress(sleepButton, () => {
+        setMode("sleep-now");
+        calculateFromSleepNow();
+      });
+      bindPress(wakeButton, () => {
+        setMode("wake-time");
+        wakeTimeInput.showPicker?.();
+        wakeTimeInput.focus();
+      });
+      wakeTimeInput.addEventListener("change", calculateFromWakeTime);
+      bindPress(createAlarmButton, async () => {
+        if (!selectedTime) return;
+        playConfirmationFeedback();
+        await copyTimeToClipboard(selectedTime);
+        openShortcutForAlarm(selectedTime);
+        const modeLabelText = mode === "sleep-now" ? "acordar" : "dormir";
+        assistiveText.textContent =
+          `Abrindo Atalhos para a Dani ${modeLabelText} às ${selectedTime}. Se não abrir, o horário já foi copiado.`;
+      });
+
+      function renderOnboarding() {
+        const page = onboardingPages[onboardingIndex];
+        onboardStep.textContent = `Passo ${onboardingIndex + 1} de ${onboardingPages.length}`;
+        onboardBadge.textContent = page.icon;
+        onboardCaption.textContent = page.caption;
+        onboardTitle.textContent = page.title;
+        onboardText.textContent = page.text;
+        onboardBack.disabled = onboardingIndex === 0;
+        onboardBack.style.opacity = onboardingIndex === 0 ? "0.5" : "1";
+        onboardNext.textContent = onboardingIndex === onboardingPages.length - 1 ? "Começar" : "Próximo";
+        renderOnboardingDots();
+      }
+
+      function renderOnboardingDots() {
+        onboardDots.innerHTML = "";
+        onboardingPages.forEach((_, index) => {
+          const dot = document.createElement("button");
+          dot.type = "button";
+          dot.className = "onboard-dot";
+          dot.setAttribute("aria-label", `Ir para etapa ${index + 1}`);
+          if (index === onboardingIndex) {
+            dot.classList.add("active");
+          }
+          dot.addEventListener("pointerup", () => {
+            onboardingIndex = index;
+            renderOnboarding();
+          });
+          onboardDots.appendChild(dot);
+        });
+      }
+
+      function openOnboarding() {
+        onboarding.classList.add("active");
+        renderOnboarding();
+      }
+
+      function closeOnboarding() {
+        onboarding.classList.remove("active");
+        localStorage.setItem("dani_rem_onboarding_seen", "1");
+      }
+
+      bindPress(infoOpenButton, () => {
+        onboardingIndex = 0;
+        openOnboarding();
+      });
+      bindPress(onboardBack, () => {
+        if (onboardingIndex > 0) {
+          onboardingIndex -= 1;
+          renderOnboarding();
+        }
+      });
+      bindPress(onboardNext, () => {
+        if (onboardingIndex < onboardingPages.length - 1) {
+          onboardingIndex += 1;
+          renderOnboarding();
+          return;
+        }
+        closeOnboarding();
+      });
+      onboarding.addEventListener("pointerup", (event) => {
+        if (event.target === onboarding) {
+          closeOnboarding();
+        }
+      });
+
+      setMode("sleep-now");
+      calculateFromSleepNow();
+      if (!localStorage.getItem("dani_rem_onboarding_seen")) {
+        openOnboarding();
+      }
+    </script>
+  </body>
+</html>
