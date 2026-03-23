@@ -7,6 +7,7 @@ const APP_SHELL = [
   "./apple-touch-icon.png",
   "./favicon-32x32.png",
   "./favicon-16x16.png",
+  "./gremio-logo.svg",
 ];
 
 self.addEventListener("install", (event) => {

@@ -110,6 +110,47 @@
         --color-tag-good-text: #003c7d;
       }
 
+      body[data-theme="gremio"] .app-nav {
+        background: rgba(0, 9, 24, 0.95);
+        border-color: rgba(255, 255, 255, 0.35);
+      }
+
+      body[data-theme="gremio"] .nav-btn {
+        color: rgba(242, 247, 255, 0.94);
+      }
+
+      body[data-theme="gremio"] .nav-btn.active {
+        background: linear-gradient(180deg, #0a7dff, #005ad4);
+        color: #ffffff;
+      }
+
+      body[data-theme="gremio"] .actions {
+        background: rgba(0, 10, 30, 0.72);
+        border-color: rgba(255, 255, 255, 0.24);
+      }
+
+      body[data-theme="gremio"] .secondary {
+        background: rgba(0, 17, 44, 0.96);
+        border-color: rgba(255, 255, 255, 0.24);
+        color: #ffffff;
+      }
+
+      body[data-theme="gremio"] .secondary.active {
+        background: linear-gradient(180deg, #0a7dff, #005ad4);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      body[data-theme="gremio"] .wake-picker-action,
+      body[data-theme="gremio"] .save-progress {
+        background: linear-gradient(180deg, #0a7dff, #005ad4);
+        border-color: rgba(255, 255, 255, 0.45);
+        color: #ffffff;
+      }
+
+      body[data-theme="gremio"] .progress-fill {
+        background: linear-gradient(90deg, #ffffff 0%, #1695ff 50%, #001126 100%);
+      }
+
       :where(button, input) {
         font-family: var(--font-family-base);
       }
@@ -187,6 +228,28 @@
         text-transform: uppercase;
         color: rgba(237, 241, 255, 0.58);
         font-weight: var(--font-weight-medium);
+      }
+
+      .gremio-brand {
+        margin: var(--space-3) auto 0;
+        width: 52px;
+        height: 52px;
+        display: none;
+        border-radius: var(--radius-pill);
+        background: rgba(255, 255, 255, 0.92);
+        border: 2px solid rgba(255, 255, 255, 0.78);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28);
+        overflow: hidden;
+      }
+
+      .gremio-brand img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      body[data-theme="gremio"] .gremio-brand {
+        display: block;
       }
 
       .art {
@@ -948,6 +1011,9 @@
       <section class="top">
         <button class="info-btn c-btn c-btn--pill" id="info-open" type="button" aria-label="Entender o sono da Dani">i</button>
         <p class="eyebrow">DaniREM</p>
+        <div class="gremio-brand" aria-hidden="true">
+          <img src="gremio-logo.svg" alt="" />
+        </div>
         <div class="art" aria-hidden="true">
           <div class="cloud"></div>
           <div class="moon"></div>
