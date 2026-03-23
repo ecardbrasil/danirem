@@ -979,8 +979,18 @@
       .day-editor-actions {
         margin-top: var(--space-6);
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
         gap: var(--space-3);
+      }
+
+      .day-editor-delete {
+        display: none;
+        border: 1px solid rgba(255, 178, 178, 0.55);
+        background: rgba(189, 35, 35, 0.25);
+      }
+
+      .day-editor-delete.active {
+        display: block;
       }
 
       .progress-item {
@@ -1451,6 +1461,7 @@
           <span class="score-badge score-bad" id="day-editor-badge">Sem pontuação</span>
         </section>
         <div class="day-editor-actions">
+          <button class="onboard-btn c-btn day-editor-delete" id="day-editor-delete" type="button">Excluir dia</button>
           <button class="onboard-btn c-btn" id="day-editor-cancel" type="button">Cancelar</button>
           <button class="onboard-btn c-btn primary" id="day-editor-save" type="button">Salvar dia</button>
         </div>
@@ -1525,6 +1536,7 @@
       const dayEditorBadge = document.getElementById("day-editor-badge");
       const dayEditorCancel = document.getElementById("day-editor-cancel");
       const dayEditorSave = document.getElementById("day-editor-save");
+      const dayEditorDelete = document.getElementById("day-editor-delete");
 
       let mode = "sleep-now";
       let onboardingIndex = 0;
@@ -1533,6 +1545,7 @@
       let appTheme = defaultSettings.theme;
       let selectedResult = null;
       let selectedEditorDateKey = "";
+      let selectedEditorHasRecord = false;
       const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
         {
@@ -1909,9 +1922,11 @@
 
       function openDayEditor(dateKey, existingRecord) {
         selectedEditorDateKey = dateKey;
+        selectedEditorHasRecord = Boolean(existingRecord);
         dayEditorDate.textContent = getDateLabel(dateKey);
         dayEditorSleep.value = existingRecord?.sleptAt || "";
         dayEditorWake.value = existingRecord?.wokeAt || "";
+        dayEditorDelete.classList.toggle("active", selectedEditorHasRecord);
         updateDayEditorScore();
         dayEditor.classList.add("active");
       }
@@ -1919,6 +1934,7 @@
       function closeDayEditor() {
         dayEditor.classList.remove("active");
         selectedEditorDateKey = "";
+        selectedEditorHasRecord = false;
       }
 
       function getMonthlyCalendarCells(date) {
@@ -2115,6 +2131,17 @@
         triggerHaptic("success");
       }
 
+      function deleteDayEditorRecord() {
+        if (!selectedEditorDateKey || !selectedEditorHasRecord) return;
+
+        const records = loadWeeklyProgress();
+        const updated = records.filter((record) => record.dateKey !== selectedEditorDateKey);
+        saveWeeklyProgress(updated);
+        updateWeeklyProgressUI();
+        closeDayEditor();
+        triggerHaptic("light");
+      }
+
       function switchTab(tabId) {
         const tabMap = {
           sleep: { button: tabSleep, panel: panelSleep },
@@ -2157,6 +2184,7 @@
       dayEditorWake.addEventListener("change", updateDayEditorScore);
       bindPress(dayEditorCancel, () => closeDayEditor());
       bindPress(dayEditorSave, () => saveDayEditorRecord());
+      bindPress(dayEditorDelete, () => deleteDayEditorRecord());
       dayEditor.addEventListener("pointerup", (event) => {
         if (event.target === dayEditor) {
           closeDayEditor();
