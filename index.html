@@ -449,6 +449,18 @@
         color: rgba(236, 241, 255, 0.88);
       }
 
+      .context-note {
+        margin: var(--space-3) 0 0;
+        padding: var(--space-4) var(--space-5);
+        border-radius: var(--radius-md);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.1);
+        color: rgba(243, 247, 255, 0.96);
+        font-size: var(--font-size-sm);
+        line-height: 1.35;
+        min-height: 56px;
+      }
+
       .assistive {
         margin: 8px 0 0;
         font-size: var(--font-size-xs);
@@ -725,6 +737,7 @@
         <input class="picker" id="wake-time" type="time" />
         <button class="wake-picker-action c-btn" id="wake-time-action" type="button">Escolher horário</button>
         <p class="mode-label" id="mode-label">Modo atual: Durma agora</p>
+        <p class="context-note" id="context-note">Se a Dani for para a cama agora, o horário estimado para dormir aparece aqui.</p>
         <section class="results c-card" id="results">
           <p class="results-title" id="results-title">Horários da Dani</p>
           <ul class="result-list" id="result-list"></ul>
@@ -780,6 +793,7 @@
       const wakeTimeInput = document.getElementById("wake-time");
       const wakeTimeActionButton = document.getElementById("wake-time-action");
       const modeLabel = document.getElementById("mode-label");
+      const contextNote = document.getElementById("context-note");
       const resultsContainer = document.getElementById("results");
       const resultsTitle = document.getElementById("results-title");
       const resultList = document.getElementById("result-list");
@@ -926,6 +940,7 @@
           const wakeAt = addMinutes(startSleep, count * cycleMinutes);
           return { cycles: count, time: formatTime(wakeAt) };
         });
+        contextNote.textContent = `Se a Dani for para a cama agora, ela deve pegar no sono por volta de ${formatTime(startSleep)}.`;
         renderResults(items, "Melhores horários para a Dani acordar");
         animateClockUpdate(items[2].time);
       }
@@ -941,6 +956,7 @@
           const bedtime = addMinutes(wakeRef, -count * cycleMinutes - latencyMinutes);
           return { cycles: count, time: formatTime(bedtime) };
         });
+        contextNote.textContent = `Para a Dani acordar às ${formatTime(wakeRef)}, ela deve dormir em um dos horários abaixo.`;
         renderResults(items, "Melhores horários para a Dani dormir");
         animateClockUpdate(formatTime(wakeRef));
       }
@@ -957,6 +973,7 @@
           const wakeAt = addMinutes(sleepStart, count * cycleMinutes);
           return { cycles: count, time: formatTime(wakeAt) };
         });
+        contextNote.textContent = `Se a Dani dormir às ${formatTime(sleepRef)}, esses são os melhores horários para acordar por ciclo.`;
         renderResults(items, "Melhores horários para a Dani acordar");
         animateClockUpdate(items[2].time);
       }
@@ -973,12 +990,15 @@
 
         if (mode === "sleep-now") {
           modeLabel.textContent = "Modo atual: Durma agora";
+          contextNote.textContent = "Se a Dani for para a cama agora, o horário estimado para dormir aparece aqui.";
         } else if (mode === "wake-time") {
           modeLabel.textContent = "Modo atual: Hora de acordar";
           wakeTimeActionButton.textContent = "Escolher hora de acordar da Dani";
+          contextNote.textContent = "Escolha a hora de acordar da Dani para descobrir a melhor hora de dormir.";
         } else {
           modeLabel.textContent = "Modo atual: Hora de dormir";
           wakeTimeActionButton.textContent = "Escolher hora de dormir da Dani";
+          contextNote.textContent = "Escolha a hora em que a Dani vai dormir para ver os ciclos de despertar.";
         }
 
         resultsContainer.classList.remove("active");
