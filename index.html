@@ -122,7 +122,7 @@
         color: var(--color-text-secondary);
       }
 
-      :where(.secondary, .final-cta, .onboard-btn, .info-btn) {
+      :where(.secondary, .onboard-btn, .info-btn) {
         transition:
           transform var(--motion-fast) var(--easing-standard),
           background-color var(--motion-base) var(--easing-standard),
@@ -449,40 +449,6 @@
         color: rgba(236, 241, 255, 0.88);
       }
 
-      .final-cta {
-        margin-top: 10px;
-        width: 100%;
-        height: 54px;
-        border: 0;
-        border-radius: var(--radius-md);
-        background: var(--color-pill-bg);
-        color: #111f52;
-        font-size: var(--font-size-md);
-        font-weight: var(--font-weight-extrabold);
-        letter-spacing: -0.01em;
-        max-height: 0;
-        opacity: 0;
-        transform: translateY(8px);
-        pointer-events: none;
-        transition: max-height var(--motion-base) var(--easing-standard), opacity var(--motion-base) var(--easing-standard), transform var(--motion-base) var(--easing-standard), filter var(--motion-base) var(--easing-standard);
-        touch-action: manipulation;
-      }
-
-      .final-cta:active {
-        transform: scale(0.988);
-      }
-
-      .final-cta.active {
-        max-height: 54px;
-        opacity: 1;
-        transform: translateY(0);
-        pointer-events: auto;
-      }
-
-      .final-cta.confirmed {
-        animation: cta-confirm 320ms ease-out;
-      }
-
       .assistive {
         margin: 8px 0 0;
         font-size: var(--font-size-xs);
@@ -690,21 +656,6 @@
         }
       }
 
-      @keyframes cta-confirm {
-        0% {
-          transform: scale(1);
-          filter: brightness(1);
-        }
-        45% {
-          transform: scale(1.01);
-          filter: brightness(1.04);
-        }
-        100% {
-          transform: scale(1);
-          filter: brightness(1);
-        }
-      }
-
       @media (prefers-reduced-motion: reduce) {
         * {
           animation: none !important;
@@ -777,9 +728,8 @@
           <p class="results-title" id="results-title">Horários da Dani</p>
           <ul class="result-list" id="result-list"></ul>
         </section>
-        <button class="final-cta c-btn" id="create-alarm" type="button">Criar alarme da Dani</button>
         <p class="assistive" id="assistive-text"></p>
-        <p class="hint">Escolha o modo da Dani e toque em “Escolher horário” no iPhone</p>
+        <p class="hint">Escolha o modo da Dani, selecione o horário e crie no app Relógio do iPhone</p>
       </section>
     </main>
     <section class="onboarding" id="onboarding" aria-live="polite">
@@ -817,7 +767,6 @@
       const cycleMinutes = 90;
       const latencyMinutes = 14;
       const cycles = [4, 5, 6];
-      const alarmShortcutName = "DaniREM Alarme";
       const labels = {
         4: { text: "Mínimo", className: "tag" },
         5: { text: "Bom", className: "tag good" },
@@ -833,7 +782,6 @@
       const resultsTitle = document.getElementById("results-title");
       const resultList = document.getElementById("result-list");
       const clockElement = document.querySelector(".clock");
-      const createAlarmButton = document.getElementById("create-alarm");
       const assistiveText = document.getElementById("assistive-text");
       const infoOpenButton = document.getElementById("info-open");
       const onboarding = document.getElementById("onboarding");
@@ -849,7 +797,6 @@
       const installDoneButton = document.getElementById("install-done");
 
       let mode = "sleep-now";
-      let selectedTime = "";
       let onboardingIndex = 0;
       const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
@@ -863,7 +810,7 @@
           icon: "🔵⚫",
           caption: "Rotina de princesa gremista com horário certeiro",
           title: "Como usar o DaniREM no dia a dia",
-          text: "Se a Dani vai deitar agora, toque em “Dani vai dormir”. Se já tiver compromisso, aula ou dia de Grêmio, use “Dani acorda às...”. O app mostra os melhores horários e você só confirma o alarme da princesa Dani.",
+          text: "Se a Dani vai deitar agora, toque em “Dani vai dormir”. Se já tiver compromisso, aula ou dia de Grêmio, use “Dani acorda às...”. O app mostra os melhores horários e vocês criam o alarme no app Relógio do iPhone.",
         },
       ];
 
@@ -895,7 +842,6 @@
       function renderResults(items, title) {
         resultsTitle.textContent = title;
         resultList.innerHTML = "";
-        selectedTime = "";
 
         for (const [index, item] of items.entries()) {
           const li = document.createElement("li");
@@ -958,13 +904,6 @@
         triggerHaptic("light");
       }
 
-      function playConfirmationFeedback() {
-        createAlarmButton.classList.remove("confirmed");
-        void createAlarmButton.offsetWidth;
-        createAlarmButton.classList.add("confirmed");
-        triggerHaptic("success");
-      }
-
       function selectResult(element, time) {
         const listItems = resultList.querySelectorAll(".result-item");
         for (const item of listItems) {
@@ -972,11 +911,9 @@
         }
 
         element.classList.add("selected");
-        selectedTime = time;
-        createAlarmButton.textContent = `Criar alarme da Dani para ${time}`;
-        createAlarmButton.classList.add("active");
         const targetLabel = mode === "sleep-now" ? "acordar" : "dormir";
-        assistiveText.textContent = `Horário da princesa Dani para ${targetLabel}: ${time}`;
+        assistiveText.textContent =
+          `Horário da princesa Dani para ${targetLabel}: ${time}. Próximo passo: abrir Relógio e criar o alarme nesse horário.`;
         playSelectionFeedback(element);
       }
 
@@ -1015,60 +952,9 @@
         wakeButton.classList.toggle("active", wakeMode);
         sleepButton.classList.toggle("active", !wakeMode);
         modeLabel.textContent = wakeMode ? "Modo atual: Dani acorda às..." : "Modo atual: Dani vai dormir";
-        selectedTime = "";
-        createAlarmButton.classList.remove("active");
         resultsContainer.classList.remove("active");
         resultList.innerHTML = "";
         assistiveText.textContent = "";
-      }
-
-      function copyTimeToClipboard(time) {
-        if (navigator.clipboard && window.isSecureContext) {
-          return navigator.clipboard.writeText(time);
-        }
-
-        return new Promise((resolve) => {
-          const input = document.createElement("input");
-          input.value = time;
-          document.body.appendChild(input);
-          input.select();
-          document.execCommand("copy");
-          input.remove();
-          resolve();
-        });
-      }
-
-      function getModePayload() {
-        if (mode === "sleep-now") {
-          return {
-            mode: "wake",
-            action: "create_wake_alarm",
-          };
-        }
-
-        return {
-          mode: "sleep",
-          action: "create_sleep_alarm",
-        };
-      }
-
-      function buildShortcutUrl(time) {
-        const encodedName = encodeURIComponent(alarmShortcutName);
-        const modePayload = getModePayload();
-        const payload = {
-          app: "DaniREM",
-          time,
-          mode: modePayload.mode,
-          action: modePayload.action,
-          generatedAt: new Date().toISOString(),
-        };
-        const encodedPayload = encodeURIComponent(JSON.stringify(payload));
-        return `shortcuts://run-shortcut?name=${encodedName}&input=text&text=${encodedPayload}`;
-      }
-
-      function openShortcutForAlarm(time) {
-        const shortcutUrl = buildShortcutUrl(time);
-        window.location.href = shortcutUrl;
       }
 
       function openWakeTimePicker() {
@@ -1101,15 +987,6 @@
         openWakeTimePicker();
       });
       wakeTimeInput.addEventListener("change", calculateFromWakeTime);
-      bindPress(createAlarmButton, async () => {
-        if (!selectedTime) return;
-        playConfirmationFeedback();
-        await copyTimeToClipboard(selectedTime);
-        openShortcutForAlarm(selectedTime);
-        const modeLabelText = mode === "sleep-now" ? "acordar" : "dormir";
-        assistiveText.textContent =
-          `Abrindo Atalhos para a Dani ${modeLabelText} às ${selectedTime}. Se não abrir, o horário já foi copiado.`;
-      });
 
       function renderOnboarding() {
         const page = onboardingPages[onboardingIndex];
