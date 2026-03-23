@@ -594,6 +594,64 @@
         border: 0;
       }
 
+      .install-onboarding {
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: var(--color-overlay);
+        backdrop-filter: blur(6px);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .install-onboarding.active {
+        display: flex;
+      }
+
+      .install-card {
+        width: min(100%, 360px);
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(16, 24, 80, 0.96);
+        padding: var(--space-7);
+      }
+
+      .install-title {
+        margin: 0;
+        font-size: var(--font-size-xl);
+        line-height: 1.2;
+      }
+
+      .install-subtitle {
+        margin: var(--space-3) 0 0;
+        font-size: var(--font-size-sm);
+        color: rgba(237, 243, 255, 0.88);
+      }
+
+      .install-steps {
+        margin: var(--space-6) 0 0;
+        padding-left: 18px;
+        display: grid;
+        gap: var(--space-4);
+        color: rgba(240, 245, 255, 0.96);
+        font-size: var(--font-size-sm);
+        line-height: 1.35;
+      }
+
+      .install-actions {
+        margin-top: var(--space-7);
+        display: grid;
+        gap: var(--space-3);
+      }
+
+      .install-note {
+        margin: var(--space-4) 0 0;
+        font-size: var(--font-size-xs);
+        color: rgba(236, 242, 255, 0.78);
+      }
+
       @keyframes fade-up {
         from {
           opacity: 0;
@@ -650,6 +708,10 @@
         }
 
         .onboarding {
+          backdrop-filter: none;
+        }
+
+        .install-onboarding {
           backdrop-filter: none;
         }
       }
@@ -717,6 +779,22 @@
         </div>
       </div>
     </section>
+    <section class="install-onboarding" id="install-onboarding" aria-live="polite">
+      <div class="install-card c-card">
+        <h2 class="install-title">Dani, coloca o DaniREM na Tela de Início ✨</h2>
+        <p class="install-subtitle">Fica mais rápido para usar antes de dormir, sem abrir navegador.</p>
+        <ol class="install-steps">
+          <li>Toque no botão <b>Compartilhar</b> do Safari (quadrado com seta para cima).</li>
+          <li>Escolha <b>Adicionar à Tela de Início</b>.</li>
+          <li>Confirme o nome <b>DaniREM</b> e toque em <b>Adicionar</b>.</li>
+        </ol>
+        <div class="install-actions">
+          <button class="onboard-btn c-btn primary" id="install-open-shortcuts" type="button">Abrir Atalhos da Dani</button>
+          <button class="onboard-btn c-btn" id="install-done" type="button">Já adicionei na tela inicial</button>
+        </div>
+        <p class="install-note">No iPhone, nenhum site consegue adicionar sozinho. Esse passo precisa ser feito uma vez no Safari.</p>
+      </div>
+    </section>
     <script>
       const cycleMinutes = 90;
       const latencyMinutes = 14;
@@ -748,10 +826,14 @@
       const onboardDots = document.getElementById("onboard-dots");
       const onboardBack = document.getElementById("onboard-back");
       const onboardNext = document.getElementById("onboard-next");
+      const installOnboarding = document.getElementById("install-onboarding");
+      const installDoneButton = document.getElementById("install-done");
+      const installOpenShortcutsButton = document.getElementById("install-open-shortcuts");
 
       let mode = "sleep-now";
       let selectedTime = "";
       let onboardingIndex = 0;
+      const installPromptStorageKey = "dani_rem_install_prompt_dismissed";
       const onboardingPages = [
         {
           icon: "🩺",
@@ -1041,6 +1123,30 @@
         localStorage.setItem("dani_rem_onboarding_seen", "1");
       }
 
+      function isIOS() {
+        return /iphone|ipad|ipod/i.test(navigator.userAgent);
+      }
+
+      function isStandaloneMode() {
+        return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+      }
+
+      function shouldShowInstallOnboarding() {
+        return isIOS() && !isStandaloneMode() && !localStorage.getItem(installPromptStorageKey);
+      }
+
+      function openInstallOnboarding() {
+        installOnboarding.classList.add("active");
+      }
+
+      function closeInstallOnboarding() {
+        installOnboarding.classList.remove("active");
+        localStorage.setItem(installPromptStorageKey, "1");
+        if (!localStorage.getItem("dani_rem_onboarding_seen")) {
+          openOnboarding();
+        }
+      }
+
       bindPress(infoOpenButton, () => {
         onboardingIndex = 0;
         openOnboarding();
@@ -1064,10 +1170,23 @@
           closeOnboarding();
         }
       });
+      bindPress(installOpenShortcutsButton, () => {
+        window.location.href = "shortcuts://";
+      });
+      bindPress(installDoneButton, () => {
+        closeInstallOnboarding();
+      });
+      installOnboarding.addEventListener("pointerup", (event) => {
+        if (event.target === installOnboarding) {
+          closeInstallOnboarding();
+        }
+      });
 
       setMode("sleep-now");
       calculateFromSleepNow();
-      if (!localStorage.getItem("dani_rem_onboarding_seen")) {
+      if (shouldShowInstallOnboarding()) {
+        openInstallOnboarding();
+      } else if (!localStorage.getItem("dani_rem_onboarding_seen")) {
         openOnboarding();
       }
     </script>
